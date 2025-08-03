@@ -1,11 +1,13 @@
 from controller.base import BaseController
 from config import Config
 from schema.problems import *
+from service.ProblemService import ProblemService
 
 class ProblemController(BaseController):
 
-    def __init__(self, prefix):
-        super().__init__(prefix)
+    def __init__(self, prefix = "problems", tags = ["problemapi"]):
+        super().__init__(prefix, tags)
+        self.problemService = ProblemService()
     
     def initialize_and_get_controller(self):
         self.controller.add_api_route(path='/list', endpoint=self.list_problems, methods=['get'])
@@ -16,8 +18,9 @@ class ProblemController(BaseController):
         return self.controller
     
     
-    def list_problems(self, skip: int = 0, limit: int = Config.LIMIT):
-        pass
+    async def list_problems(self, skip: int = 0, limit: int = Config.LIMIT):
+        return await self.problemService.list_all_problems(skip, limit)
+        
 
     def problem(self, problemId: str):
         pass
