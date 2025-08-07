@@ -1,23 +1,13 @@
+version: '3.9'
+
 services:
-  db:
-    image: mysql:8.4
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'cheetcodedb'
-
-      MYSQL_USER: 'mysql'
-
-      MYSQL_PASSWORD: 'mysql'
-      # Password for root access
-      MYSQL_ROOT_PASSWORD: 'rootmysql'
+  postgres:
+    image: postgres:15-alpine
     ports:
-      - '5175:3306'
-    expose:
-
-      - '3306'
-
+      - 5175:5432
     volumes:
-      - my-db:/var/lib/mysql
-# Names our volume
-volumes:
-  my-db:
+      - ~/cheetcodedata/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}

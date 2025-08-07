@@ -1,10 +1,10 @@
 from config import Config
-from repository.problems import PRExecutor
+from repository.problems import ProblemRepository
 import traceback
 
 class ProblemService:
 
-    _repository = PRExecutor()
+    _repository = ProblemRepository()
 
     @classmethod
     def list_all_problems(cls, skip: int, limit: int):

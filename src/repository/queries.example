@@ -1,0 +1,7 @@
+class ProblemsQueries:
+
+    list_all_problems = """
+    SELECT * from cheetcode.problems
+    limit $limit 
+    offset $skip;
+"""
