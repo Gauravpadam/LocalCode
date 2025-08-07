@@ -32,7 +32,7 @@ class Config:
     LIMIT: int = int(os.environ['LIMIT'])
 
     # DB related
-    FLAVOR = os.environ.get('FLAVOR', 'mysql')
+    FLAVOR = os.environ.get('FLAVOR', 'postgres')
     DB_HOST = os.environ['DB_HOST']
     DB_PORT = os.environ['DB_PORT']
     DB_USER = os.environ['DB_USER']
