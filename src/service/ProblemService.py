@@ -1,5 +1,8 @@
+from typing import Optional
 from config import Config
+from repository.dataclass import SuccessfulSubmission
 from repository.problems import ProblemRepository
+from DTO.Submission import Submission
 import traceback
 
 class ProblemService:
@@ -16,3 +19,20 @@ class ProblemService:
         except Exception as e:
             print(traceback.print_exc())
             raise Exception("An error occured in the service layer: {e}".format(e))
+
+    @classmethod
+    def problem(cls, slug:str):
+
+        try:
+            problems = cls._repository.problem(slug)
+
+            return problems
+        except Exception as e:
+            print(traceback.print_exc())
+            raise Exception("An error occured in the service layer: {e}".format(e))
+
+    @classmethod
+    def process_submit(cls, submission: Submission):
+        submission_code = cls._repository.write_submission(**submission.model_dump())
+
+        return submission_code

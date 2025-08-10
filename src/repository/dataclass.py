@@ -2,14 +2,16 @@ from dataclasses import dataclass
 
 @dataclass
 class Problem:
-    id: int
+    _id: int
     title: str
     description: str
     submitted_by: int
+    testcase_id: int
+    slug: str
 
 @dataclass
 class Testcase:
-    id: int
+    _id: int
     problem_id: int
     contributed_by: int
     input_params: str
@@ -17,25 +19,20 @@ class Testcase:
 
 @dataclass
 class User:
-    id: int
+    _id: int
     username: str
     password: str
 
 @dataclass
-class Solution:
-    id: int
-    title: str
-    description: str
-    code: str
-    submitted_by: int
-
-@dataclass
 class Submission:
-    id: int
+    _id: int
     problem_id: int
-    submitted_by: int
+    submitted_by: str
     code: str
-    attempt : str
-    passed: bool
+    runtime: float
+    space: float
+    attempt : int
+    is_solution: bool
 
-    
+class SuccessfulSubmission:
+    _id: int

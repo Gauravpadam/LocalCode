@@ -17,7 +17,8 @@ create table if not exists cheetcode.problems(
     title VARCHAR(200) NOT NULL,
     description text default NULL,
     submitted_by int REFERENCES cheetcode.users,
-    testcase_id int default NULL
+    testcase_id int default NULL,
+    slug VARCHAR(200) unique NOT NULL
 );
 
 INSERT into cheetcode.problems
@@ -50,6 +51,7 @@ create table if not exists cheetcode.submissions(
     code text NOT NULL,
     runtime float default NULL,
     space float default NULL,
+    attempt int default 1,
     is_solution bool default NULL
 );
 
