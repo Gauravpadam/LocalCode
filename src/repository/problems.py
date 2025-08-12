@@ -1,4 +1,4 @@
-from repository.dataclass import Problem, SuccessfulSubmission
+from repository.dataclass import Problem
 from mayim import PostgresExecutor, Mayim, query
 from repository.queries import ProblemsQueries
 from config import Config
