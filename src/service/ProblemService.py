@@ -1,6 +1,5 @@
 from typing import Optional
 from config import Config
-from repository.dataclass import SuccessfulSubmission
 from repository.problems import ProblemRepository
 from DTO.Submission import Submission
 import traceback
@@ -34,5 +33,4 @@ class ProblemService:
     @classmethod
     def process_submit(cls, submission: Submission):
         submission_code = cls._repository.write_submission(**submission.model_dump())
-
         return submission_code
