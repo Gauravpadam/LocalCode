@@ -29,6 +29,7 @@ class Submission:
     problem_id: int
     submitted_by: str
     code: str
+    language: str
     runtime: float
     space: float
     attempt : int
