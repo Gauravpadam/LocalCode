@@ -1,10 +1,47 @@
 # Instantiate a runner
 # What it needs - code, testcases
 import time
+import os
+import subprocess
 
 from typing import List, Dict
 
 from abc import ABC, abstractmethod
+
+async def save_file(code, language, dir = "./tmp"):
+
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
+    filepath = os.path.join(dir, f"Solution{languageExtensionMapping[language]}")
+
+    with open (filepath, 'w') as file:
+        file.write(code)
+
+    return filepath
+
+async def subprocess_exec(code, language, testcases):
+
+    filepath = await save_file(code, language)
+
+    if language in languageExecMapping:
+        for i, testcase in enumerate(testcases):
+            try:
+                tic = time.process_time()
+                complete_process = subprocess.run(languageExecMapping[language].append(filepath), check = True, capture_output=True)
+                toc = time.process_time()
+            except Exception as e:
+                print(e.with_traceback(None))
+                testcases[i]["observed"] = e
+                testcases[i]["verdict"] = "Exception" # Enum: Passed failed Exception
+                return (testcases, "Exception", i)
+
+            testcases[i]["observed"] = complete_process.stdout[-1] # TODO: This needs parsing
+            testcases[i]["verdict"] = "Passed" if (complete_process.stdout[-1] == testcases[i]["expected_output"]) else "Failed"
+            testcases[i]["runtime"] = toc - tic
+
+        return (testcases, "Passed")  # Enum: Passed failed Exception
+
 class BaseRunner(ABC):
 
     @abstractmethod
@@ -13,7 +50,7 @@ class BaseRunner(ABC):
         pass
 
     @abstractmethod
-    def execute_runner(self, code: str, testcases: List[Dict]):
+    async def execute_runner(self, code: str, language, testcases: List[Dict]):
         pass
 
 class PythonRunner(BaseRunner):
@@ -26,23 +63,8 @@ class PythonRunner(BaseRunner):
             cls._runner = PythonRunner()
         return cls._runner
 
-    def execute_runner(self, code: str, testcases):
-        for i, testcase in enumerate(testcases):
-            try:
-                tic = time.process_time()
-                # runResults = subprocess.run(input)
-                toc = time.process_time()
-            except Exception as e:
-                print(e.with_traceback(None))
-                testcases[i]["observed"] = e
-                testcases[i]["verdict"] = "Exception" # Enum: Passed failed Exception
-                return (testcases, "Exception", i)
-
-            testcases[i]["observed"] = runResults
-            testcases[i]["verdict"] = "Passed" if (runResults == testcases[i]["expected_output"]) else "Failed"
-            testcases[i]["runtime"] = toc - tic
-
-        return (testcases, "Passed")  # Enum: Passed failed Exception
+    async def execute_runner(self, code: str, language, testcases):
+        return await subprocess_exec(code, language, testcases)
 
 
 class JavaRunner(BaseRunner):
@@ -55,23 +77,8 @@ class JavaRunner(BaseRunner):
             cls._runner = JavaRunner()
         return cls._runner
 
-    def execute_runner(self, code: str, testcases):
-        for i, testcase in enumerate(testcases):
-            try:
-                tic = time.process_time()
-                # runResults = subprocess.run(input)
-                toc = time.process_time()
-            except Exception as e:
-                print(e.with_traceback(None))
-                testcases[i]["observed"] = e
-                testcases[i]["verdict"] = "Exception" # Enum: Passed failed Exception
-                return (testcases, "Exception", i)
-
-            testcases[i]["observed"] = runResults
-            testcases[i]["verdict"] = "Passed" if (runResults == testcases[i]["expected_output"]) else "Failed"
-            testcases[i]["runtime"] = toc - tic
-
-        return (testcases, "Passed")  # Enum: Passed failed Exception
+    async def execute_runner(self, code: str, language, testcases):
+        return await subprocess_exec(code, language, testcases)
 
 class CRunner(BaseRunner):
 
@@ -84,26 +91,25 @@ class CRunner(BaseRunner):
         return cls._runner
 
 
-    def execute_runner(self, code: str, testcases):
-        for i, testcase in enumerate(testcases):
-            try:
-                tic = time.process_time()
-                # runResults = subprocess.run(input)
-                toc = time.process_time()
-            except Exception as e:
-                print(e.with_traceback(None))
-                testcases[i]["observed"] = e
-                testcases[i]["verdict"] = "Exception" # Enum: Passed failed Exception
-                return (testcases, "Exception", i)
+    async def execute_runner(self, code: str, language, testcases):
+        return await subprocess_exec(code, language, testcases)
 
-            testcases[i]["observed"] = runResults
-            testcases[i]["verdict"] = "Passed" if (runResults == testcases[i]["expected_output"]) else "Failed"
-            testcases[i]["runtime"] = toc - tic
 
-        return (testcases, "Passed")  # Enum: Passed failed Exception
 
 runnerMapping: Dict[str, BaseRunner] = {
     "python": PythonRunner.create_runner(),
     "java": JavaRunner.create_runner(),
     "c": CRunner.create_runner()
+}
+
+languageExecMapping: Dict[str, List[str]] = {
+    "python": ["python", "Solution.py"],
+    "java": ["java", "Solution.java"],
+    "c": ["gcc", "Solution.c", "-o", "Solution", "&&", "./Solution"]
+}
+
+languageExtensionMapping: Dict[str, str] = {
+    "python": ".py",
+    "java": ".java",
+    "c": ".c"
 }
