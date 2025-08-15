@@ -5,6 +5,7 @@ class Submission(BaseModel):
     submitted_by: int
     code: str
     language: str
+    slug: str
     runtime: float
     space: float
     attempt: int
