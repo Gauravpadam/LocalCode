@@ -26,9 +26,16 @@ async def subprocess_exec(code, language, testcases):
 
     if language in languageExecMapping:
         for i, testcase in enumerate(testcases):
+            # params = testcase["input"]["params"]
+            # nums = params["nums"]
+            # target = params["target"]
+            # extensions = [filepath]
+
+            arraybuilder = languageExecMapping[language]
+            arraybuilder.append(filepath)
             try:
                 tic = time.process_time()
-                complete_process = subprocess.run(languageExecMapping[language].append(filepath), check = True, capture_output=True)
+                complete_process = subprocess.run(arraybuilder, check = True, capture_output=True)
                 toc = time.process_time()
             except Exception as e:
                 print(e.with_traceback(None))
@@ -44,8 +51,8 @@ async def subprocess_exec(code, language, testcases):
 
 class BaseRunner(ABC):
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def create_runner(cls) -> "BaseRunner":
         pass
 
@@ -64,6 +71,17 @@ class PythonRunner(BaseRunner):
         return cls._runner
 
     async def execute_runner(self, code: str, language, testcases):
+        # testcases = [
+        #     {
+        #         "input": {
+        #             "params": {
+        #                 "nums": [2, 7, 11, 15],
+        #                 "target": 9
+        #             }
+        #         },
+        #         "expected_output": [0, 1]
+        #     }
+        # ]
         return await subprocess_exec(code, language, testcases)
 
 
@@ -103,7 +121,7 @@ runnerMapping: Dict[str, BaseRunner] = {
 }
 
 languageExecMapping: Dict[str, List[str]] = {
-    "python": ["python", "Solution.py"],
+    "python": ["python"],
     "java": ["java", "Solution.java"],
     "c": ["gcc", "Solution.c", "-o", "Solution", "&&", "./Solution"]
 }
