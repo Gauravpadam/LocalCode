@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict, Any
 
 @dataclass
 class Problem:
@@ -13,9 +14,9 @@ class Problem:
 class Testcase:
     _id: int
     problem_id: int
-    contributed_by: int
-    input_params: str
-    expected_output: str
+    submitted_by: int
+    slug: str
+    testcase: Dict[str, Any]
 
 @dataclass
 class User:
@@ -27,6 +28,7 @@ class User:
 class Submission:
     _id: int
     problem_id: int
+    slug: str
     submitted_by: str
     code: str
     language: str

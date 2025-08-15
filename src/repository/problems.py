@@ -22,8 +22,10 @@ class ProblemExecutor(PostgresExecutor):
     @query(
         ProblemsQueries.insert_submission
     )
-    async def write_submission(self, problem_id: int, submitted_by: int, code: str, runtime: float, space:float, attempt:int, is_solution: Optional[bool] = False):
+    async def write_submission(self, problem_id: int, slug: str, submitted_by: int, code: str, runtime: float, space:float, attempt:int, is_solution: Optional[bool] = False):
         ...
+
+
 
 
 class ProblemRepository:
@@ -39,6 +41,6 @@ class ProblemRepository:
         Mayim(dsn=Config.db_url())
         return await self._executor.problem(slug)
 
-    async def write_submission(self, slug, submitted_by, code, runtime, space, attempt, is_solution = False, problem_id = 1):
+    async def write_submission(self, slug, submitted_by, code, runtime, space, attempt, language, is_solution = False, problem_id = 1):
         Mayim(dsn=Config.db_url())
-        return await self._executor.write_submission(problem_id, submitted_by, code, runtime, space, attempt, is_solution)
+        return await self._executor.write_submission(problem_id, slug, submitted_by, code, language, runtime, space, attempt, is_solution)
