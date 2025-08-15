@@ -4,6 +4,8 @@ from repository.problems import ProblemRepository
 from DTO.Submission import Submission
 import traceback
 
+from service.Evaluator import EvaluationService
+
 class ProblemService:
 
     _repository = ProblemRepository()
@@ -31,6 +33,8 @@ class ProblemService:
             raise Exception("An error occured in the service layer: {e}".format(e))
 
     @classmethod
-    def process_submit(cls, submission: Submission):
-        submission_code = cls._repository.write_submission(**submission.model_dump())
-        return submission_code
+    async def process_submit(cls, submission: Submission):
+        # submission_code = cls._repository.write_submission(**submission.model_dump())
+        eval_service = EvaluationService(submission.code, submission.language, submission.slug)
+        evaluation_results = await eval_service.run_code()
+        return evaluation_results

@@ -5,7 +5,7 @@
 # Else: Return exception to user
 
 from DTO.Submission import Submission
-from Executor import runnerMapping
+from service.Executor import runnerMapping
 
 
 class EvaluationService:
@@ -17,10 +17,12 @@ class EvaluationService:
         self.executor = runnerMapping.get(language)
 
 
-    # TODO: needs to be async
+    # TODO: Why is this service running the code! xD
     # TODO: Graceful error handling
-    def run_code(self):
-        checklist = [0] * len(self.testcases)
-        timer = [0] * len(self.testcases)
-        results = self.executor.execute_runner(self.code, self.testcases, checklist, timer)
+    async def run_code(self):
+        # checklist = [0] * len(self.testcases)
+        # timer = [0] * len(self.testcases)
+        
+        results = await self.executor.execute_runner(self.code, self.language, self.testcases)
+        return results
         # TODO: TLE, MLE cases
