@@ -35,4 +35,33 @@
 
 #     @classmethod
 #     def map
+
+
+# from typing import List
+# from decimal import Decimal
+
+
+# class DataMapper:
+
+#     @staticmethod
+#     def produce_array(array_like: str):
+#         array: List[int]  = list(map(int, array_like.lstrip('[').rstrip(']').split(',')))
+#         return array
+    
+#     @staticmethod
+#     def produce_int(int_like: str):
+#         integer = int(int_like)
+#         return integer
+    
+#     @staticmethod
+#     def produce_float(float_like: str):
+#         floatval: float = float(float_like)
+#         return floatval
+    
+#     @staticmethod
+#     def produce_double(double_like: str):
+#         return Decimal(double_like)
+
+
+
         
