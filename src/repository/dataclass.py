@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Dict, Any
+from dataclasses import dataclass, field
+from typing import Dict, Any, Union, Optional
 
 @dataclass
 class Problem:
@@ -16,13 +16,16 @@ class Testcase:
     problem_id: int
     submitted_by: int
     slug: str
-    testcase: Dict[str, Any]
+    testcase: Dict[str, Union[str, Dict]]
+    __test__ = False # This is for pytest
 
 @dataclass
 class User:
-    _id: int
     username: str
-    password: str
+    email: str
+    hashed_password: str
+    salt: str
+    _id: Optional[int] = field(default=None)
 
 @dataclass
 class Submission:
@@ -36,6 +39,7 @@ class Submission:
     space: float
     attempt : int
     is_solution: bool
+
 
 class SuccessfulSubmission:
     _id: int
