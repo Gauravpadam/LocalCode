@@ -1,3 +1,6 @@
 fastapi
 uvicorn
 python-dotenv=1.1.1
+pytest
+bcrypt
+mockito-python
