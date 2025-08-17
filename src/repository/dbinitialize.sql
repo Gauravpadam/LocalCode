@@ -4,7 +4,8 @@ create table if not exists localcode.users(
     _id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    password VARCHAR(18) NOT NULL
+    password VARCHAR(18) NOT NULL,
+    salt text;
 );
 
 INSERT into localcode.users(username, email, password)
