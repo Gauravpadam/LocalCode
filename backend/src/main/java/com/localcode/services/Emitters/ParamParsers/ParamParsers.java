@@ -14,10 +14,13 @@ interface HelperMethodProvider {
     String generateHelperMethod();
 }
 
+interface CustomDataClasses{
+    String generateCustomDataClasses();
+}
 
 class IntParser extends ParamParser {
     public IntParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -28,7 +31,7 @@ class IntParser extends ParamParser {
 
 class LongParser extends ParamParser {
     public LongParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -39,7 +42,7 @@ class LongParser extends ParamParser {
 
 class DoubleParser extends ParamParser {
     public DoubleParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -50,7 +53,7 @@ class DoubleParser extends ParamParser {
 
 class FloatParser extends ParamParser {
     public FloatParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -61,7 +64,7 @@ class FloatParser extends ParamParser {
 
 class BooleanParser extends ParamParser {
     public BooleanParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -72,7 +75,7 @@ class BooleanParser extends ParamParser {
 
 class CharParser extends ParamParser {
     public CharParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -83,7 +86,7 @@ class CharParser extends ParamParser {
 
 class StringParser extends ParamParser {
     public StringParser() {
-        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -94,7 +97,7 @@ class StringParser extends ParamParser {
 
 class IntArrayParser extends ParamParser {
     public IntArrayParser() {
-        super(new Primitive1DNumLikeArrayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new Primitive1DNumLikeArrayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -106,7 +109,7 @@ class IntArrayParser extends ParamParser {
 
 class LongArrayParser extends ParamParser {
     public LongArrayParser() {
-        super(new Primitive1DNumLikeArrayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new Primitive1DNumLikeArrayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -118,7 +121,7 @@ class LongArrayParser extends ParamParser {
 
 class DoubleArrayParser extends ParamParser {
     public DoubleArrayParser() {
-        super(new Primitive1DNumLikeArrayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new Primitive1DNumLikeArrayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -130,7 +133,7 @@ class DoubleArrayParser extends ParamParser {
 
 class StringArrayParser extends ParamParser {
     public StringArrayParser() {
-        super(new Primitive1DStringArrayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new Primitive1DStringArrayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -142,7 +145,7 @@ class StringArrayParser extends ParamParser {
 
 class CharArrayParser extends ParamParser {
     public CharArrayParser() {
-        super(new Primitive1DCharArrayFormatter(), new DoesNotNeedMatrixParsing());
+        super(new Primitive1DCharArrayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -154,7 +157,7 @@ class CharArrayParser extends ParamParser {
 
 class IntListParser extends ParamParser {
     public IntListParser() {
-        super(new NumLikeListFormatter(), new DoesNotNeedMatrixParsing());
+        super(new NumLikeListFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -166,7 +169,7 @@ class IntListParser extends ParamParser {
 
 class LongListParser extends ParamParser {
     public LongListParser() {
-        super(new NumLikeListFormatter(), new DoesNotNeedMatrixParsing());
+        super(new NumLikeListFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -178,7 +181,7 @@ class LongListParser extends ParamParser {
 
 class DoubleListParser extends ParamParser {
     public DoubleListParser() {
-        super(new NumLikeListFormatter(), new DoesNotNeedMatrixParsing());
+        super(new NumLikeListFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -190,7 +193,7 @@ class DoubleListParser extends ParamParser {
 
 class StringListParser extends ParamParser {
     public StringListParser() {
-        super(new StringListFormatter(), new DoesNotNeedMatrixParsing());
+        super(new StringListFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -202,7 +205,7 @@ class StringListParser extends ParamParser {
 
 class Int2DArrayParser extends ParamParser {
     public Int2DArrayParser() {
-        super(new Primitive2DNumLikeArrayFormatter(), new Primitive2DIntHelper());
+        super(new Primitive2DNumLikeArrayFormatter(), new Primitive2DIntHelper(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -213,7 +216,7 @@ class Int2DArrayParser extends ParamParser {
 
 class Long2DArrayParser extends ParamParser {
     public Long2DArrayParser() {
-        super(new Primitive2DNumLikeArrayFormatter(), new Primitive2DLongHelper());
+        super(new Primitive2DNumLikeArrayFormatter(), new Primitive2DLongHelper(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -224,7 +227,7 @@ class Long2DArrayParser extends ParamParser {
 
 class String2DArrayParser extends ParamParser {
     public String2DArrayParser() {
-        super(new Primitive2DStringArrayFormatter(), new Primitive2DStringHelper());
+        super(new Primitive2DStringArrayFormatter(), new Primitive2DStringHelper(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -235,7 +238,7 @@ class String2DArrayParser extends ParamParser {
 
 class IntMatrixParser extends ParamParser {
     public IntMatrixParser() {
-        super(new MatrixFormatter(), new MatrixIntHelper());
+        super(new MatrixFormatter(), new MatrixIntHelper(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -246,7 +249,7 @@ class IntMatrixParser extends ParamParser {
 
 class LongMatrixParser extends ParamParser {
     public LongMatrixParser() {
-        super(new MatrixFormatter(), new MatrixLongHelper());
+        super(new MatrixFormatter(), new MatrixLongHelper(), new NeedsNoCustomDataType());
     }
 
     @Override
@@ -257,12 +260,45 @@ class LongMatrixParser extends ParamParser {
 
 class StringMatrixParser extends ParamParser {
     public StringMatrixParser() {
-        super(new MatrixFormatter(), new MatrixStringHelper());
+        super(new MatrixFormatter(), new MatrixStringHelper(), new NeedsNoCustomDataType());
     }
 
     @Override
     public String generateInputParsing() {
         return "parseStringMatrix(input)";
+    }
+}
+
+class TreeNodeParser extends ParamParser {
+    public TreeNodeParser() {
+        super(new DirectDisplayFormatter(), new TreeNodeHelper(), new TreeNodeProviderClass());
+    }
+
+    @Override
+    public String generateInputParsing() {
+        return "parseTreeNode(input)";
+    }
+}
+
+class ListNodeParser extends ParamParser {
+    public ListNodeParser() {
+        super(new DirectDisplayFormatter(), new ListNodeHelper(), new ListNodeProviderClass());
+    }
+
+    @Override
+    public String generateInputParsing() {
+        return "parseListNode(input)";
+    }
+}
+
+class NodeParser extends ParamParser {
+    public NodeParser() {
+        super(new DirectDisplayFormatter(), new NodeHelper(), new NodeProviderClass());
+    }
+
+    @Override
+    public String generateInputParsing() {
+        return "parseNode(input)";
     }
 }
 
@@ -287,10 +323,18 @@ public class ParamParsers{
                 case LIST_LONG -> new LongListParser();
                 case LIST_DOUBLE -> new DoubleListParser();
                 case LIST_STRING -> new StringListParser();
+
+                case ARRAY_2D_INT -> new Int2DArrayParser();
+                case ARRAY_2D_LONG -> new Long2DArrayParser();
+                case ARRAY_2D_STRING -> new String2DArrayParser();
                 
                 case MATRIX_INT -> new IntMatrixParser();
                 case MATRIX_LONG -> new LongMatrixParser();
                 case MATRIX_STRING -> new StringMatrixParser();
+                case TREE_NODE -> new TreeNodeParser();
+                case LIST_NODE -> new ListNodeParser();
+                case NODE -> new NodeParser();
+                
     
                 default -> throw new IllegalArgumentException("Unsupported data type: " + dataType);
             };

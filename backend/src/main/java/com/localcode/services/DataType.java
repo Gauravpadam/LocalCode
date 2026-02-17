@@ -36,6 +36,11 @@ public enum DataType{
     MATRIX_LONG,
     MATRIX_STRING,
 
+    // custom structures
+    TREE_NODE,
+    LIST_NODE,
+    NODE,
+
     // fallback
     UNKNOWN
 }
