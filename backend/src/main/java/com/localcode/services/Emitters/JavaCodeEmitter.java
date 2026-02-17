@@ -140,22 +140,19 @@ public class JavaCodeEmitter implements CodeEmitter{
         return mainMethod.toString();
     }
 
-    // TODO: Extend ParamParser to generate custom datatype classes
     private String addCustomDataTypeClasses(List<ParamParser> paramParsers){
-        // StringBuilder classes = new StringBuilder();
+        StringBuilder classes = new StringBuilder();
         
-        // Set<String> addedClasses = new LinkedHashSet<>();
-        // for (ParamParser paramParser : paramParsers){
-        //     String classDef = paramParser.generateCustomDataTypeClass();
-        //     if (!classDef.isEmpty() && !addedClasses.contains(classDef)){
-        //         classes.append(classDef).append("\n");
-        //         addedClasses.add(classDef);
-        //     }
-        // }
+        Set<String> addedClasses = new LinkedHashSet<>();
+        for (ParamParser paramParser : paramParsers){
+            String classDef = paramParser.generateCustomDataClass();
+            if (!classDef.isEmpty() && !addedClasses.contains(classDef)){
+                classes.append(classDef).append("\n");
+                addedClasses.add(classDef);
+            }
+        }
 
-        // return classes.toString();
-
-        return "";
+        return classes.toString();
     }
 
     private String addMatrixParsingHelpers(List<ParamParser> paramParsers){
