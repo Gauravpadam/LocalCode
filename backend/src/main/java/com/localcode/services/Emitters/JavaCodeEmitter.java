@@ -86,13 +86,6 @@ public class JavaCodeEmitter implements CodeEmitter{
     }
 
 
-    // start main
-        // declarations*
-        // scanner
-        // input parsers
-        // method call*
-        // output parsing
-    
 
     private String addInputParsers(List<ParamParser> paramParsers, List<Param> params){
 
@@ -116,11 +109,47 @@ public class JavaCodeEmitter implements CodeEmitter{
         return outputFormatters.toString();
     }
 
+    // start main
+        // declarations*
+        // scanner
+        // input parsers
+        // method call*
+        // output parsing
+    
     // TODO: Implement logic for declarations on void types and custom ways to call the method for different return types
     private String addMainMethod(List<ParamParser> paramParsers, MethodSignature signature){
         StringBuilder mainMethod = new StringBuilder();
         mainMethod.append("    public static void main(String[] args) {\n");
         mainMethod.append("        Scanner scanner = new Scanner(System.in);\n\n");
+
+
+        // if (signature.returnType) == 'void'{
+        // Now here I would need the primary parameter that needs to be modified
+        // For now to keep things simple I'll say it's the first one in the order}
+
+        // if (signature.returnType == "void "){
+        //     Param primaryParam = signature.params.get(0);
+
+        //     mainMethod.append("        %s %s;")
+            
+        // }
+
+        /* 
+            The neat part is: There could be multiple such parameters for in place modification,
+            keeping that fact aside, here's what we need to do/change to incorportate this
+
+            primary parameters to be declared (?)
+            Now that I think about it, We are already storing the types with names after parsing
+            All we need is the indexes of primary parameters
+            Then, we pass by reference and let user modify the param in place in their code
+
+            After that when we call for result method 
+                if void, we print the primary params in order after parsing,
+                else we print the result normally after parsing (whatever user method returned)
+            
+            Sometimes I think why aren't we just dumping all code into the file
+            still that wouldn't help with in place modification
+        */
 
 
         // Input parsers
