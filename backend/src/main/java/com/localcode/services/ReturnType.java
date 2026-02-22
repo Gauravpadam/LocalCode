@@ -1,0 +1,75 @@
+package com.localcode.services;
+
+import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.Arrays;
+import java.util.Map;
+
+public enum ReturnType {
+    // void
+    VOID,
+    
+    // primitives
+    INT,
+    LONG,
+    DOUBLE,
+    FLOAT,
+    BOOLEAN,
+    CHAR,
+
+    // simple objects
+    STRING,
+
+    // arrays
+    ARRAY_INT,
+    ARRAY_LONG,
+    ARRAY_DOUBLE,
+    ARRAY_STRING,
+    ARRAY_CHAR,
+
+    // collections
+    LIST_INT,
+    LIST_LONG,
+    LIST_DOUBLE,
+    LIST_STRING,
+
+    // 2D arrays (primitive)
+    ARRAY_2D_INT,
+    ARRAY_2D_LONG,
+    ARRAY_2D_STRING,
+
+    // matrix / 2D (List<List<...>>)
+    MATRIX_INT,
+    MATRIX_LONG,
+    MATRIX_STRING,
+
+    // custom structures
+    TREE_NODE,
+    LIST_NODE,
+    NODE,
+
+    // fallback
+    UNKNOWN;
+
+    private static final Map<String, ReturnType> LOOKUP =
+            Arrays.stream(values())
+                .collect(Collectors.toMap(
+                    s -> s.name().toLowerCase(),
+                    Function.identity()
+                ));
+
+        public static ReturnType from(String value) {
+            ReturnType result = LOOKUP.get(value.toLowerCase());
+            if (result == null) {
+                throw new IllegalArgumentException("Invalid Return Type: " + value);
+            }
+            return result;
+        }
+    
+    @Override
+    public String toString() {
+        String cap =  name().substring(0, 1).toUpperCase() + name().substring(1).toLowerCase();
+
+        return cap;
+    }
+}

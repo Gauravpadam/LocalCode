@@ -14,6 +14,8 @@ import com.localcode.services.Emitters.ParamParsers.ParamParser;
 import com.localcode.services.Emitters.ParamParsers.ParamParsers;
 import com.localcode.services.DataType;
 
+import com.localcode.services.ReturnType;
+
 // TODO: A bigger refactor would be needed, this could be harness builder and then I could implement some strategies for it.
 // TODO: Handle empty inputs. - DONE
 // TDOD: Handle cases where custom types are present (TreeNode etc.)
@@ -38,19 +40,14 @@ public class JavaCodeEmitter implements CodeEmitter{
         }
     
     
-    // TODO: Implementation of call by reference
-    // There is one crink here. If the problem says modify in place, we need to pass by reference in the method call.
-
-    
-    // TODO: 
-    private String generateMethodCall(String returnType, String methodName, List<Param> params) {
+    private String generateMethodCall(ReturnType returnType, String methodName, List<Param> params) {
             StringBuilder code = new StringBuilder();
             
             // void vs normal returntype
-            boolean isVoid = "void".equals(returnType);
+            boolean isVoid = "Void".equals(returnType.toString());
             if (!isVoid) {
                 code.append("Result result = new Result();");
-                code.append(String.format("        %s res = result.%s(", returnType, methodName));
+                code.append(String.format("        %s res = result.%s(", returnType.toString(), methodName));
                 for (int i = 0; i < params.size(); i++) {
                     code.append(params.get(i).name);
                     if (i < params.size() - 1) code.append(", ");
@@ -99,11 +96,14 @@ public class JavaCodeEmitter implements CodeEmitter{
         return inputParsers.toString();
     }
 
-    private String addOutputFormatters(List<ParamParser> paramParsers, String callParam){
+    private String addOutputFormatters(List<ParamParser> paramParsers, ReturnType returnType, Param PrimaryParam){
         StringBuilder outputFormatters = new StringBuilder();
 
         for (ParamParser paramParser : paramParsers){
-            outputFormatters.append(String.format(paramParser.generateOutputFormatting(), callParam));
+            if (returnType == ReturnType.VOID){
+                outputFormatters.append(String.format(paramParser.generateOutputFormatting(), PrimaryParam.getName()));
+            }
+            outputFormatters.append(String.format(paramParser.generateOutputFormatting(), "res"));
         }
 
         return outputFormatters.toString();
@@ -162,11 +162,7 @@ public class JavaCodeEmitter implements CodeEmitter{
         mainMethod.append(generateMethodCall(signature.returnType, signature.methodName, signature.params));
 
         // handle output
-        if (signature.returnType == "void"){
-            mainMethod.append(addOutputFormatters(paramParsers, signature.params.get(0).getName())); // Assuming primary param is at 0 for now
-        } else{
-            mainMethod.append(addOutputFormatters(paramParsers, "res"));
-        }
+        mainMethod.append(addOutputFormatters(paramParsers, signature.returnType, signature.params.get(0))); // Assuming first one is the primary param
 
        
         mainMethod.append("        scanner.close();\n");
