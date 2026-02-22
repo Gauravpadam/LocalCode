@@ -99,11 +99,11 @@ public class JavaCodeEmitter implements CodeEmitter{
         return inputParsers.toString();
     }
 
-    private String addOutputFormatters(List<ParamParser> paramParsers){
+    private String addOutputFormatters(List<ParamParser> paramParsers, String callParam){
         StringBuilder outputFormatters = new StringBuilder();
 
         for (ParamParser paramParser : paramParsers){
-            outputFormatters.append(paramParser.generateOutputFormatting());
+            outputFormatters.append(String.format(paramParser.generateOutputFormatting(), callParam));
         }
 
         return outputFormatters.toString();
@@ -162,8 +162,13 @@ public class JavaCodeEmitter implements CodeEmitter{
         mainMethod.append(generateMethodCall(signature.returnType, signature.methodName, signature.params));
 
         // handle output
-        mainMethod.append(addOutputFormatters(paramParsers));
+        if (signature.returnType == "void"){
+            mainMethod.append(addOutputFormatters(paramParsers, signature.params.get(0).getName())); // Assuming primary param is at 0 for now
+        } else{
+            mainMethod.append(addOutputFormatters(paramParsers, "res"));
+        }
 
+       
         mainMethod.append("        scanner.close();\n");
         mainMethod.append("    }\n");
 
@@ -205,6 +210,7 @@ public class JavaCodeEmitter implements CodeEmitter{
                 // input parsers
                 // method call*
                 // output parsing
+                // print statement* (for void return type)
             // end main
     // }
     @Override
