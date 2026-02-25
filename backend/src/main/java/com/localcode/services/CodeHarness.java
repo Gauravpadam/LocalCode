@@ -1,6 +1,5 @@
 package com.localcode.services;
 
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,7 @@ public class CodeHarness {
 
     public CodeHarness(
         EmitterFactory emitterFactory
+        
     ) {
         this.emitterFactory = emitterFactory;
     }

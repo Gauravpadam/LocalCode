@@ -4,41 +4,23 @@ import org.springframework.stereotype.Component;
 import com.localcode.services.DataType;
 import com.localcode.services.MethodSignature;
 import com.localcode.services.Param;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.regex.*;
+import com.localcode.services.PythonTailCodeGenerationUtils;
 
 @Component("PythonCodeEmitter")
 public class PythonCodeEmitter implements CodeEmitter {
 
-    @Override
-    public DataType dataTypeMap(String paramType) {
-        return switch (paramType) {
-            case "int" -> DataType.INT;
-            case "float" -> DataType.DOUBLE;
-            case "str" -> DataType.STRING;
-            case "bool" -> DataType.BOOLEAN;
-            case "List[int]" -> DataType.LIST_INT;
-            case "list[int]" -> DataType.LIST_INT;
-            case "List[float]" -> DataType.LIST_DOUBLE;
-            case "list[float]" -> DataType.LIST_DOUBLE;
-            case "List[str]" -> DataType.LIST_STRING;
-            case "list[str]" -> DataType.LIST_STRING;
-            case "List[List[int]]" -> DataType.MATRIX_INT;
-            case "list[list[int]]" -> DataType.MATRIX_INT;
-            case "List[List[str]]" -> DataType.MATRIX_STRING;
-            case "list[list[str]]" -> DataType.MATRIX_STRING;
-            default -> throw new IllegalArgumentException("Unknown Python type: " + paramType);
-        };
+    private final PythonTailCodeGenerationUtils pythonTailCodeGenerationUtils;
+
+    public PythonCodeEmitter(PythonTailCodeGenerationUtils pythonTailCodeGenerationUtils) {
+        this.pythonTailCodeGenerationUtils = pythonTailCodeGenerationUtils;
     }
 
     @Override
-    public String generateImports() {
-        return "from typing import List\n";
+    public String generateHeadCode() {
+        return pythonTailCodeGenerationUtils.commonImports();
     }
 
-    @Override
-    public String generateInputParsing(DataType dataType) {
+    private String generateInputParsing(DataType dataType) {
         return switch (dataType) {
             case INT -> "int(input_val.strip())";
             case LONG -> "int(input_val.strip())";
@@ -79,7 +61,7 @@ public class PythonCodeEmitter implements CodeEmitter {
         StringBuilder code = new StringBuilder();
         code.append(String.format("    input_val%d = input()\n", index));
         
-        DataType dt = dataTypeMap(param.type);
+        DataType dt = pythonTailCodeGenerationUtils.dataTypeResolver(param.type);
         String parseExpr = generateInputParsing(dt).replace("input_val", "input_val" + index);
         
         code.append(String.format("    %s = %s\n", param.name, parseExpr));
@@ -102,7 +84,7 @@ public class PythonCodeEmitter implements CodeEmitter {
 
     @Override
     public String generateTailCode(String methodToCall) {
-        MethodSignature signature = parseStarterCode(methodToCall);
+        MethodSignature signature = pythonTailCodeGenerationUtils.parseStarterCode(methodToCall);
 
         StringBuilder out = new StringBuilder();
         out.append("def main():\n");
@@ -121,48 +103,5 @@ public class PythonCodeEmitter implements CodeEmitter {
         out.append("    main()\n");
 
         return out.toString();
-    }
-
-    private MethodSignature parseStarterCode(String starterCode) {
-        Pattern pattern = Pattern.compile(
-            "def\\s+" +
-            "([a-zA-Z_]\\w*)\\s*" +         // function name
-            "\\(([^)]*)\\)" +               // params
-            "(?:\\s*->\\s*([\\w\\[\\],\\s]+))?"  // optional return type
-        );
-    
-        Matcher matcher = pattern.matcher(starterCode);
-    
-        if (!matcher.find()) {
-            throw new IllegalArgumentException("No function signature found");
-        }
-    
-        String methodName = matcher.group(1);
-        String paramsStr = matcher.group(2).trim();
-        String returnType = matcher.group(3) != null ? matcher.group(3).trim() : "None";
-    
-        List<Param> params = new ArrayList<>();
-    
-        if (!paramsStr.isEmpty()) {
-            String[] paramParts = paramsStr.split(",");
-            for (String param : paramParts) {
-                extractParam(param.trim(), params);
-            }
-        }
-    
-        return new MethodSignature(returnType, methodName, params);
-    }
-
-    private void extractParam(String raw, List<Param> params) {
-        String param = raw.trim();
-        // Python params: name or name: type
-        if (param.contains(":")) {
-            String[] parts = param.split(":", 2);
-            String name = parts[0].trim();
-            String type = parts[1].trim();
-            params.add(new Param(type, name));
-        } else {
-            params.add(new Param("Any", param));
-        }
     }
 }

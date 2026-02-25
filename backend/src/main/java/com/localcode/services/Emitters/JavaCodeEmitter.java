@@ -9,7 +9,7 @@ import com.localcode.services.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import com.localcode.services.Param;
-import com.localcode.services.TailCodeGenerationUtils;
+import com.localcode.services.JavaTailCodeGenerationUtils;
 import com.localcode.services.Emitters.ParamParsers.ParamParser;
 import com.localcode.services.Emitters.ParamParsers.ParamParsers;
 import com.localcode.services.DataType;
@@ -23,9 +23,15 @@ import com.localcode.services.ReturnType;
 @Component("JavaCodeEmitter")
 public class JavaCodeEmitter implements CodeEmitter{
 
+    private final JavaTailCodeGenerationUtils javaTailCodeGenerationUtils;
+
+    public JavaCodeEmitter(JavaTailCodeGenerationUtils javaTailCodeGenerationUtils) {
+        this.javaTailCodeGenerationUtils = javaTailCodeGenerationUtils;
+    }
+
     @Override
     public String generateHeadCode(){
-        return TailCodeGenerationUtils.generateImports();
+        return javaTailCodeGenerationUtils.commonImports();
     }
 
 
@@ -72,7 +78,7 @@ public class JavaCodeEmitter implements CodeEmitter{
         List<ParamParser> parserList = new ArrayList<>();
 
         for (Param p : params) {
-            DataType dt = TailCodeGenerationUtils.dataTypeMap(p.type);
+            DataType dt = javaTailCodeGenerationUtils.dataTypeResolver(p.type);
             ParamParser parser = ParamParsers.getParser(dt);
             if (parser != null) {
                 parserList.add(parser);
@@ -121,6 +127,7 @@ public class JavaCodeEmitter implements CodeEmitter{
         StringBuilder mainMethod = new StringBuilder();
         mainMethod.append("    public static void main(String[] args) {\n");
         mainMethod.append("        Scanner scanner = new Scanner(System.in);\n\n");
+        ReturnType returnType = javaTailCodeGenerationUtils.returnTypeResolver(signature.returnType);
 
 
         // if (signature.returnType) == 'void'{
@@ -159,10 +166,10 @@ public class JavaCodeEmitter implements CodeEmitter{
         mainMethod.append("\n");
 
         // Call method and handle output
-        mainMethod.append(generateMethodCall(signature.returnType, signature.methodName, signature.params));
+        mainMethod.append(generateMethodCall(returnType, signature.methodName, signature.params));
 
         // handle output
-        mainMethod.append(addOutputFormatters(paramParsers, signature.returnType, signature.params.get(0))); // Assuming first one is the primary param
+        mainMethod.append(addOutputFormatters(paramParsers, returnType, signature.params.get(0))); // Assuming first one is the primary param
 
        
         mainMethod.append("        scanner.close();\n");
@@ -212,7 +219,7 @@ public class JavaCodeEmitter implements CodeEmitter{
     @Override
     public String generateTailCode(String methodToCall) {
 
-        MethodSignature signature = TailCodeGenerationUtils.parseStarterCode(methodToCall);
+        MethodSignature signature = javaTailCodeGenerationUtils.parseStarterCode(methodToCall);
         List<ParamParser> paramParsers = gatherParamParsers(signature.params);
 
 

@@ -49,27 +49,5 @@ public enum ReturnType {
     NODE,
 
     // fallback
-    UNKNOWN;
-
-    private static final Map<String, ReturnType> LOOKUP =
-            Arrays.stream(values())
-                .collect(Collectors.toMap(
-                    s -> s.name().toLowerCase(),
-                    Function.identity()
-                ));
-
-        public static ReturnType from(String value) {
-            ReturnType result = LOOKUP.get(value.toLowerCase());
-            if (result == null) {
-                throw new IllegalArgumentException("Invalid Return Type: " + value);
-            }
-            return result;
-        }
-    
-    @Override
-    public String toString() {
-        String cap =  name().substring(0, 1).toUpperCase() + name().substring(1).toLowerCase();
-
-        return cap;
-    }
+    UNKNOWN; 
 }
