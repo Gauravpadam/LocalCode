@@ -73,7 +73,7 @@ public class JavaTailCodeGenerationUtils implements TailCodeGenerationUtils {
        return switch (returnType){
 
             // VOID
-            case "Void" -> ReturnType.VOID;
+            case "void" -> ReturnType.VOID;
 
             // primitives
             case "int" -> ReturnType.INT;
