@@ -50,8 +50,7 @@ public class JavaCodeEmitter implements CodeEmitter{
             StringBuilder code = new StringBuilder();
             
             // void vs normal returntype
-            boolean isVoid = "Void".equals(returnType.toString());
-            if (!isVoid) {
+            if (returnType != ReturnType.VOID) {
                 code.append("Result result = new Result();");
                 code.append(String.format("        %s res = result.%s(", returnType.toString(), methodName));
                 for (int i = 0; i < params.size(); i++) {
@@ -62,6 +61,7 @@ public class JavaCodeEmitter implements CodeEmitter{
                 code.append(");\n");
             } else {
                 code.append("           Result result = new Result();");
+                code.append("\n");
                 code.append(String.format("        result.%s(", methodName));
                 for (int i = 0; i < params.size(); i++) {
                     code.append(params.get(i).name);
@@ -235,6 +235,10 @@ public class JavaCodeEmitter implements CodeEmitter{
 
         // main function
         out.append(addMainMethod(paramParsers, signature));
+        
+
+        // close class
+        out.append("}\n"); 
 
         return out.toString();
     }
