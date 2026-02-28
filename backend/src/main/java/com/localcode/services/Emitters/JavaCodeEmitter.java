@@ -46,13 +46,13 @@ public class JavaCodeEmitter implements CodeEmitter{
         }
     
     
-    private String generateMethodCall(ReturnType returnType, String methodName, List<Param> params) {
+    private String generateMethodCall(String returnType, String methodName, List<Param> params) {
             StringBuilder code = new StringBuilder();
             
             // void vs normal returntype
-            if (returnType != ReturnType.VOID) {
+            if (returnType != "void") {
                 code.append("Result result = new Result();");
-                code.append(String.format("        %s res = result.%s(", returnType.toString(), methodName));
+                code.append(String.format("        %s res = result.%s(", returnType, methodName));
                 for (int i = 0; i < params.size(); i++) {
                     code.append(params.get(i).name);
                     if (i < params.size() - 1) code.append(", ");
@@ -102,15 +102,10 @@ public class JavaCodeEmitter implements CodeEmitter{
         return inputParsers.toString();
     }
 
-    private String addOutputFormatters(List<ParamParser> paramParsers, ReturnType returnType, Param PrimaryParam){
+    private String addOutputFormatters(ParamParser outputParser, Param PrimaryParam){
         StringBuilder outputFormatters = new StringBuilder();
 
-        for (ParamParser paramParser : paramParsers){
-            if (returnType == ReturnType.VOID){
-                outputFormatters.append(String.format(paramParser.generateOutputFormatting(), PrimaryParam.getName()));
-            }
-            outputFormatters.append(String.format(paramParser.generateOutputFormatting(), "res"));
-        }
+        outputFormatters.append(outputParser.generateOutputFormatting());
 
         return outputFormatters.toString();
     }
@@ -123,7 +118,7 @@ public class JavaCodeEmitter implements CodeEmitter{
         // output parsing
     
     // TODO: Implement logic for declarations on void types and custom ways to call the method for different return types
-    private String addMainMethod(List<ParamParser> paramParsers, MethodSignature signature){
+    private String addMainMethod(List<ParamParser> paramParsers, ParamParser outputParser, MethodSignature signature){
         StringBuilder mainMethod = new StringBuilder();
         mainMethod.append("    public static void main(String[] args) {\n");
         mainMethod.append("        Scanner scanner = new Scanner(System.in);\n\n");
@@ -166,10 +161,10 @@ public class JavaCodeEmitter implements CodeEmitter{
         mainMethod.append("\n");
 
         // Call method and handle output
-        mainMethod.append(generateMethodCall(returnType, signature.methodName, signature.params));
+        mainMethod.append(generateMethodCall(signature.returnType, signature.methodName, signature.params));
 
         // handle output
-        mainMethod.append(addOutputFormatters(paramParsers, returnType, signature.params.get(0))); // Assuming first one is the primary param
+        mainMethod.append(addOutputFormatters(outputParser, signature.params.get(0))); // Assuming first one is the primary param
 
        
         mainMethod.append("        scanner.close();\n");
@@ -221,6 +216,8 @@ public class JavaCodeEmitter implements CodeEmitter{
 
         MethodSignature signature = javaTailCodeGenerationUtils.parseStarterCode(methodToCall);
         List<ParamParser> paramParsers = gatherParamParsers(signature.params);
+        ParamParser outputParser = ParamParsers.getParser(javaTailCodeGenerationUtils.dataTypeResolver(signature.returnType)); // Sending the output parser in separately
+        // Have to think about replacing the variable in template
 
 
         StringBuilder out = new StringBuilder();
@@ -234,7 +231,7 @@ public class JavaCodeEmitter implements CodeEmitter{
         
 
         // main function
-        out.append(addMainMethod(paramParsers, signature));
+        out.append(addMainMethod(paramParsers, outputParser, signature));
         
 
         // close class

@@ -27,6 +27,7 @@ public class CodeHarness {
         StringBuilder harness = new StringBuilder();
 
       
+        harness.append(emitter.generateHeadCode());
         harness.append(emitter.generateTailCode(request.getMethodToCall()));
 
         return harness.toString();
