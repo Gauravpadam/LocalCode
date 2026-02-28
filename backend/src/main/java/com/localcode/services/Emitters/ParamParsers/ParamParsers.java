@@ -139,7 +139,7 @@ class StringArrayParser extends ParamParser {
     @Override
     public String generateInputParsing() {
         return "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))"
-                + ".map(String::trim).map(stringz->stringz.replaceAll(\"^\\\\\"|\\\\\"$\", \"\")).toArray(String[]::new)";
+                + ".map(String::trim).map(stringz->stringz.replaceAll(\" \", \"\")).toArray(String[]::new)";
     }
 }
 
@@ -151,7 +151,7 @@ class CharArrayParser extends ParamParser {
     @Override
     public String generateInputParsing() {
         return "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))"
-                + ".map(String::trim).map(stringz->stringz.replaceAll(\"^\\\\\"|\\\\\"$\", \"\")).toArray(char[]::new)";
+                + ".map(String::trim).map(stringz->stringz.replaceAll(\" \", \"\")).toArray(char[]::new)";
     }
 }
 
@@ -199,7 +199,7 @@ class StringListParser extends ParamParser {
     @Override
     public String generateInputParsing() {
         return "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))"
-                + ".map(String::trim).map(s->s.replaceAll(\"^\\\\\"|\\\\\"$\", \"\")).collect(Collectors.toList())";
+                + ".map(String::trim).map(s->s.replaceAll(\" \", \"\")).collect(Collectors.toList())";
     }
 }
 
