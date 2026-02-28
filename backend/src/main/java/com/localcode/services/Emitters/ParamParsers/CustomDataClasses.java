@@ -4,7 +4,7 @@ interface ProvidesCustomDataClass{
     String provideCustomDataClass();
 }
 
-public class TreeNodeProviderClass implements ProvidesCustomDataClass {
+class TreeNodeProviderClass implements ProvidesCustomDataClass {
     @Override
     public String provideCustomDataClass() {
         return """
