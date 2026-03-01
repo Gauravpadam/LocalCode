@@ -5,13 +5,18 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 
 import com.localcode.services.MethodSignature;
+
 import org.springframework.stereotype.Component;
-import java.util.regex.*;
 
 import com.localcode.services.Param;
-
-
+import com.localcode.services.JavaTailCodeGenerationUtils;
+import com.localcode.services.Emitters.ParamParsers.ParamParser;
+import com.localcode.services.Emitters.ParamParsers.ParamParsers;
 import com.localcode.services.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.localcode.services.ReturnType;
 
 // TODO: A bigger refactor would be needed, this could be harness builder and then I could implement some strategies for it.
 // TODO: Handle empty inputs. - DONE
@@ -20,351 +25,55 @@ import com.localcode.services.DataType;
 @Component("JavaCodeEmitter")
 public class JavaCodeEmitter implements CodeEmitter{
 
-    @Override
-    public DataType dataTypeMap(String paramType){
-        return switch (paramType) {
-        // primitives
-        case "int" -> DataType.INT;
-        case "long" -> DataType.LONG;
-        case "double" -> DataType.DOUBLE;
-        case "float" -> DataType.FLOAT;
-        case "boolean" -> DataType.BOOLEAN;
-        case "char" -> DataType.CHAR;
 
-        // boxed / objects
-        case "Integer" -> DataType.INT;
-        case "Long" -> DataType.LONG;
-        case "Double" -> DataType.DOUBLE;
-        case "Float" -> DataType.FLOAT;
-        case "Boolean" -> DataType.BOOLEAN;
-        case "Character" -> DataType.CHAR;
-        case "String" -> DataType.STRING;
+    private final JavaTailCodeGenerationUtils javaTailCodeGenerationUtils;
+    private final Logger logger = LoggerFactory.getLogger(JavaCodeEmitter.class);
 
-        // primitive arrays
-        case "int[]" -> DataType.ARRAY_INT;
-        case "long[]" -> DataType.ARRAY_LONG;
-        case "double[]" -> DataType.ARRAY_DOUBLE;
-        case "String[]" -> DataType.ARRAY_STRING;
-        case "char[]" -> DataType.ARRAY_CHAR;
-
-        // lists (common variants)
-        case "List<Integer>" -> DataType.LIST_INT;
-        case "ArrayList<Integer>" -> DataType.LIST_INT;
-        case "LinkedList<Integer>" -> DataType.LIST_INT;
-        case "List<Long>" -> DataType.LIST_LONG;
-        case "ArrayList<Long>" -> DataType.LIST_LONG;
-        case "List<Double>" -> DataType.LIST_DOUBLE;
-        case "ArrayList<Double>" -> DataType.LIST_DOUBLE;
-        case "List<String>" -> DataType.LIST_STRING;
-        case "ArrayList<String>" -> DataType.LIST_STRING;
-
-        // 2D primitive arrays
-        case "int[][]" -> DataType.ARRAY_2D_INT;
-        case "long[][]" -> DataType.ARRAY_2D_LONG;
-        case "String[][]" -> DataType.ARRAY_2D_STRING;
-
-        // matrices (List<List<...>>)
-        case "List<List<Integer>>" -> DataType.MATRIX_INT;
-        case "ArrayList<List<Integer>>" -> DataType.MATRIX_INT;
-        case "List<List<Long>>" -> DataType.MATRIX_LONG;
-        case "ArrayList<List<Long>>" -> DataType.MATRIX_LONG;
-        case "List<List<String>>" -> DataType.MATRIX_STRING;
-        case "ArrayList<List<String>>" -> DataType.MATRIX_STRING;
-
-        default -> throw new IllegalArgumentException("Unknown Java type: " + paramType);
-    };
-}
-
-
-
-   
-    @Override
-    public String generateImports(){ return "import java.util.*;\nimport java.util.stream.*;\n";} 
+    public JavaCodeEmitter(JavaTailCodeGenerationUtils javaTailCodeGenerationUtils) {
+        this.javaTailCodeGenerationUtils = javaTailCodeGenerationUtils;
+    }
 
     @Override
-    public String generateInputParsing(DataType javaDataType){
-        return switch (javaDataType) {
-            case INT -> "Integer.parseInt(input.trim())";
-            case LONG -> "Long.parseLong(input.trim())";
-            case DOUBLE -> "Double.parseDouble(input.trim())";
-            case FLOAT -> "Float.parseFloat(input.trim())";
-            case BOOLEAN -> "Boolean.parseBoolean(input.trim())";
-            case CHAR -> "input.trim().charAt(0)";
-            case STRING -> "input.trim()";
-            
-            // primitive arrays -> return primitive array types
-            case ARRAY_INT -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).filter(stringz->!stringz.isEmpty()).mapToInt(Integer::parseInt).toArray()";
-            
-            case ARRAY_LONG -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).filter(stringz->!stringz.isEmpty()).mapToLong(Long::parseLong).toArray()";
-            
-            case ARRAY_DOUBLE -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).filter(stringz->!stringz.isEmpty()).mapToDouble(Double::parseDouble).toArray()";
-            
-            case ARRAY_STRING -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).map(stringz->stringz.replaceAll(\"^\\\"|\\\"$\", \"\")).toArray(String[]::new)";
-
-            case ARRAY_CHAR -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).map(stringz->stringz.replaceAll(\"^\\\"|\\\"$\", \"\")).toArray(char[]::new)";
-            // list variants -> keep returning collections
-            case LIST_INT -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).filter(s->!s.isEmpty()).map(Integer::parseInt).collect(Collectors.toList())";
-            
-            case LIST_LONG -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).filter(s->!s.isEmpty()).map(Long::parseLong).collect(Collectors.toList())";
-            
-            case LIST_DOUBLE -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).filter(s->!s.isEmpty()).map(Double::parseDouble).collect(Collectors.toList())";
-            
-            case LIST_STRING -> 
-                "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))" +
-                ".map(String::trim).map(s->s.replaceAll(\"^\\\"|\\\"$\", \"\")).collect(Collectors.toList())";
-            
-            case ARRAY_2D_INT -> "parseIntArray2D(input)";
-            case ARRAY_2D_LONG -> "parseLongArray2D(input)";
-            case ARRAY_2D_STRING -> "parseStringArray2D(input)";
-            case MATRIX_INT -> "parseIntMatrix(input)";
-            case MATRIX_LONG -> "parseLongMatrix(input)";
-            case MATRIX_STRING -> "parseStringMatrix(input)";
-            
-            default -> "input.trim()";
-        };
+    public String generateHeadCode(){
+        return javaTailCodeGenerationUtils.commonImports();
     }
 
 
-    private String generateParamParsing(Param param, int index) {
+    private String generateParamParsing(ParamParser paramParser, String paramType, String paramName, int index) {
             StringBuilder code = new StringBuilder();
             code.append(String.format("        String input%d = scanner.hasNextLine() ? scanner.nextLine() : \"\";\n", index));
             
-            DataType dt = dataTypeMap(param.type);
-            String parseExpr = generateInputParsing(dt).replace("input", "input" + index);
+            String parseExpr = paramParser.generateInputParsing().replace("input", "input" + index);
             
-            code.append(String.format("        %s %s = %s;\n", param.type, param.name, parseExpr));
+            code.append(String.format("        %s %s = %s;\n", paramType, paramName, parseExpr));
             return code.toString();
         }
     
     
-    // TODO: Implementation of call by reference
-    // There is one crink here. If the problem says modify in place, we need to pass by reference in the method call.
-
-    private String generateHelperMethods(List<DataType> neededTypes) {
-        StringBuilder helpers = new StringBuilder();
-        
-        for (DataType dt : neededTypes) {
-            switch (dt) {
-                case ARRAY_2D_INT -> helpers.append("""
-                        private static int[][] parseIntArray2D(String input) {
-                            String tmp = input.trim().substring(1, input.trim().length() - 1);
-                            List<int[]> rows = new ArrayList<>();
-                            if (!tmp.isEmpty()) {
-                                String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
-                                for (String r : parts) {
-                                    r = r.replaceAll("^\\\\[|\\\\]$", "");
-                                    rows.add(Arrays.stream(r.split(","))
-                                        .map(String::trim)
-                                        .filter(s -> !s.isEmpty())
-                                        .mapToInt(Integer::parseInt)
-                                        .toArray());
-                                }
-                            }
-                            return rows.toArray(new int[0][]);
-                        }
-                    """);
-                case ARRAY_2D_LONG -> helpers.append("""
-                        private static long[][] parseLongArray2D(String input) {
-                            String tmp = input.trim().substring(1, input.trim().length() - 1);
-                            List<long[]> rows = new ArrayList<>();
-                            if (!tmp.isEmpty()) {
-                                String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
-                                for (String r : parts) {
-                                    r = r.replaceAll("^\\\\[|\\\\]$", "");
-                                    rows.add(Arrays.stream(r.split(","))
-                                        .map(String::trim)
-                                        .filter(s -> !s.isEmpty())
-                                        .mapToLong(Long::parseLong)
-                                        .toArray());
-                                }
-                            }
-                            return rows.toArray(new long[0][]);
-                        }
-                    """);
-                case ARRAY_2D_STRING -> helpers.append("""
-                        private static String[][] parseStringArray2D(String input) {
-                            String tmp = input.trim().substring(1, input.trim().length() - 1);
-                            List<String[]> rows = new ArrayList<>();
-                            if (!tmp.isEmpty()) {
-                                String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
-                                for (String r : parts) {
-                                    r = r.replaceAll("^\\\\[|\\\\]$", "");
-                                    rows.add(Arrays.stream(r.split(","))
-                                        .map(String::trim)
-                                        .map(s -> s.replaceAll("^\\"|\\"$", ""))
-                                        .toArray(String[]::new));
-                                }
-                            }
-                            return rows.toArray(new String[0][]);
-                        }
-                    """);
-                case MATRIX_INT -> helpers.append("""
-                        private static List<List<Integer>> parseIntMatrix(String input) {
-                            String tmp = input.trim().substring(1, input.trim().length() - 1);
-                            List<List<Integer>> result = new ArrayList<>();
-                            if (!tmp.isEmpty()) {
-                                String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
-                                for (String r : parts) {
-                                    r = r.replaceAll("^\\\\[|\\\\]$", "");
-                                    List<Integer> row = new ArrayList<>();
-                                    for (String v : r.split(",")) {
-                                        if (!v.trim().isEmpty()) row.add(Integer.parseInt(v.trim()));
-                                    }
-                                    result.add(row);
-                                }
-                            }
-                            return result;
-                        }
-                    """);
-                case MATRIX_LONG -> helpers.append("""
-                        private static List<List<Long>> parseLongMatrix(String input) {
-                            String tmp = input.trim().substring(1, input.trim().length() - 1);
-                            List<List<Long>> result = new ArrayList<>();
-                            if (!tmp.isEmpty()) {
-                                String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
-                                for (String r : parts) {
-                                    r = r.replaceAll("^\\\\[|\\\\]$", "");
-                                    List<Long> row = new ArrayList<>();
-                                    for (String v : r.split(",")) {
-                                        if (!v.trim().isEmpty()) row.add(Long.parseLong(v.trim()));
-                                    }
-                                    result.add(row);
-                                }
-                            }
-                            return result;
-                        }
-                    """);
-                case MATRIX_STRING -> helpers.append("""
-                        private static List<List<String>> parseStringMatrix(String input) {
-                            String tmp = input.trim().substring(1, input.trim().length() - 1);
-                            List<List<String>> result = new ArrayList<>();
-                            if (!tmp.isEmpty()) {
-                                String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
-                                for (String r : parts) {
-                                    r = r.replaceAll("^\\\\[|\\\\]$", "");
-                                    List<String> row = new ArrayList<>();
-                                    for (String v : r.split(",")) {
-                                        row.add(v.trim().replaceAll("^\\"|\\"$", ""));
-                                    }
-                                    result.add(row);
-                                }
-                            }
-                            return result;
-                        }
-                    """);
-                default -> {} // No helper needed
-            }
-        }
-        return helpers.toString();
-    }
-
-    private String generateMethodCall(MethodSignature signature) {
+    private String generateMethodCall(String returnType, String methodName, List<Param> params) {
             StringBuilder code = new StringBuilder();
+
+            logger.info(String.format("The return type received in generateMethodCall is: %s", returnType));
+
             
-            boolean isVoid = "void".equals(signature.returnType);
-            if (!isVoid) {
+            // void vs normal returntype
+            if (!"void".equals(returnType)) {
+                logger.info("So it's void, but I still trigger the void control because why tf not");
                 code.append("Result result = new Result();");
-                code.append(String.format("        %s res = result.%s(", signature.returnType, signature.methodName));
-                for (int i = 0; i < signature.params.size(); i++) {
-                    code.append(signature.params.get(i).name);
-                    if (i < signature.params.size() - 1) code.append(", ");
+                code.append(String.format("        %s res = result.%s(", returnType, methodName));
+                for (int i = 0; i < params.size(); i++) {
+                    code.append(params.get(i).name);
+                    if (i < params.size() - 1) code.append(", ");
                 }
-                DataType returnType = dataTypeMap(signature.returnType);
+
                 code.append(");\n");
-                               if (returnType == DataType.ARRAY_INT
-        || returnType == DataType.ARRAY_LONG
-        || returnType == DataType.ARRAY_DOUBLE
-        || returnType == DataType.ARRAY_CHAR) {
-
-    code.append("        System.out.println(Arrays.toString(res).replace(\" \", \"\"));\n");
-
-} else if (returnType == DataType.ARRAY_2D_INT || returnType == DataType.ARRAY_2D_LONG) {
-
-    code.append("""
-        System.out.print("[");
-        for (int i = 0; i < res.length; i++) {
-            System.out.print(Arrays.toString(res[i]).replace(" ", ""));
-            if (i != res.length - 1) System.out.print(",");
-        }
-        System.out.println("]");
-    """);
-
-} else if (returnType == DataType.ARRAY_2D_STRING) {
-
-    code.append("""
-        System.out.print("[");
-        for (int i = 0; i < res.length; i++) {
-            System.out.print("[");
-            for (int j = 0; j < res[i].length; j++) {
-                System.out.print("\\"" + res[i][j] + "\\"");
-                if (j != res[i].length - 1) System.out.print(",");
-            }
-            System.out.print("]");
-            if (i != res.length - 1) System.out.print(",");
-        }
-        System.out.println("]");
-    """);
-
-} else if (returnType == DataType.ARRAY_STRING) {
-
-    // ["a","b","c"]
-    code.append("""
-        System.out.print("[");
-        for (int i = 0; i < res.length; i++) {
-            System.out.print("\\"" + res[i] + "\\"");
-            if (i != res.length - 1) System.out.print(",");
-        }
-        System.out.println("]");
-    """);
-
-} else if (returnType == DataType.LIST_STRING) {
-
-    // ["1","2","Fizz"]
-    code.append("""
-        System.out.print("[");
-        for (int i = 0; i < res.size(); i++) {
-            System.out.print("\\"" + res.get(i) + "\\"");
-            if (i != res.size() - 1) System.out.print(",");
-        }
-        System.out.println("]");
-    """);
-
-} else if (returnType == DataType.LIST_INT
-        || returnType == DataType.LIST_LONG
-        || returnType == DataType.LIST_DOUBLE
-        || returnType == DataType.MATRIX_INT
-        || returnType == DataType.MATRIX_LONG
-        || returnType == DataType.MATRIX_STRING) {
-
-    code.append("        System.out.println(res.toString().replace(\" \", \"\"));\n");
-
-} else {
-
-    code.append("        System.out.println(res);\n");
-}
-
             } else {
                 code.append("           Result result = new Result();");
-                code.append(String.format("        result.%s(", signature.methodName));
-                for (int i = 0; i < signature.params.size(); i++) {
-                    code.append(signature.params.get(i).name);
-                    if (i < signature.params.size() - 1) code.append(", ");
+                code.append("\n");
+                code.append(String.format("        result.%s(", methodName));
+                for (int i = 0; i < params.size(); i++) {
+                    code.append(params.get(i).name);
+                    if (i < params.size() - 1) code.append(", ");
                 }
                 code.append(");\n");
             }
@@ -372,105 +81,195 @@ public class JavaCodeEmitter implements CodeEmitter{
             return code.toString();
         }
 
-    @Override
-     public String generateTailCode(String methodToCall) {
+    private List<ParamParser> gatherParamParsers(List<Param> params){
 
-        MethodSignature signature = parseStarterCode(methodToCall);
+        List<ParamParser> parserList = new ArrayList<>();
 
-        // Collect types that need helper methods
-        Set<DataType> neededHelpers = new LinkedHashSet<>();
-        for (Param p : signature.params) {
-            DataType dt = dataTypeMap(p.type);
-            if (dt == DataType.ARRAY_2D_INT || dt == DataType.ARRAY_2D_LONG || dt == DataType.ARRAY_2D_STRING
-                || dt == DataType.MATRIX_INT || dt == DataType.MATRIX_LONG || dt == DataType.MATRIX_STRING) {
-                neededHelpers.add(dt);
+        for (Param p : params) {
+            DataType dt = javaTailCodeGenerationUtils.dataTypeResolver(p.type);
+            ParamParser parser = ParamParsers.getParser(dt);
+            if (parser != null) {
+                parserList.add(parser);
+            }
+        }
+        
+        return parserList;
+    }
+
+
+
+    private String addInputParsers(List<ParamParser> paramParsers, List<Param> params){
+
+        StringBuilder inputParsers = new StringBuilder();
+
+             // Read and parse each parameter
+        for (int i = 0; i < paramParsers.size(); i++) {
+            inputParsers.append(generateParamParsing(paramParsers.get(i), params.get(i).type, params.get(i).getName(), i));
+        }
+
+        return inputParsers.toString();
+    }
+
+    private String addOutputFormatters(ParamParser outputParser, String returnType, Param PrimaryParam){
+        StringBuilder outputFormatters = new StringBuilder();
+
+        logger.info("Inside outputFormatter the returnType is %s".formatted(returnType));
+
+        if ("void".equals(returnType)){
+            // If it's void, we print the primary parameter(s) instead after parsing
+            outputFormatters.append(outputParser.generateOutputFormatting().replace("%s", PrimaryParam.name));
+            // If there are multiple primary parameters, we would need to handle that as well (not implemented here)
+        } else {
+            outputFormatters.append(outputParser.generateOutputFormatting().replace("%s", "res"));
+        }
+
+        logger.info("This is how outputFormatter looks: \n %s \n".formatted(outputFormatters));
+
+        return outputFormatters.toString();
+    }
+
+    // start main
+        // declarations*
+        // scanner
+        // input parsers
+        // method call*
+        // output parsing
+    
+    // TODO: Implement logic for declarations on void types and custom ways to call the method for different return types
+    private String addMainMethod(List<ParamParser> paramParsers, ParamParser outputParser, MethodSignature signature){
+        StringBuilder mainMethod = new StringBuilder();
+        mainMethod.append("    public static void main(String[] args) {\n");
+        mainMethod.append("        Scanner scanner = new Scanner(System.in);\n\n");
+
+        logger.info("Entered addMainMethod");
+
+
+        // if (signature.returnType) == 'void'{
+        // Now here I would need the primary parameter that needs to be modified
+        // For now to keep things simple I'll say it's the first one in the order}
+
+        // if (signature.returnType == "void "){
+        //     Param primaryParam = signature.params.get(0);
+
+        //     mainMethod.append("        %s %s;")
+            
+        // }
+
+        /* 
+            The neat part is: There could be multiple such parameters for in place modification,
+            keeping that fact aside, here's what we need to do/change to incorportate this
+
+            primary parameters to be declared (?)
+            Now that I think about it, We are already storing the types with names after parsing
+            All we need is the indexes of primary parameters
+            Then, we pass by reference and let user modify the param in place in their code
+
+            After that when we call for result method 
+                if void, we print the primary params in order after parsing,
+                else we print the result normally after parsing (whatever user method returned)
+            
+            Sometimes I think why aren't we just dumping all code into the file
+            still that wouldn't help with in place modification
+        */
+
+
+        // Input parsers
+        mainMethod.append(addInputParsers(paramParsers, signature.params));
+
+        // clean code go brrrrrr
+        mainMethod.append("\n");
+
+        // Call method and handle output
+        mainMethod.append(generateMethodCall(signature.returnType, signature.methodName, signature.params));
+
+        // handle output
+        mainMethod.append(addOutputFormatters(outputParser, signature.returnType, signature.params.get(0))); // Assuming first one is the primary param
+
+       
+        mainMethod.append("        scanner.close();\n");
+        mainMethod.append("    }\n");
+
+        return mainMethod.toString();
+    }
+
+    private String addCustomDataTypeClasses(List<ParamParser> paramParsers){
+        StringBuilder classes = new StringBuilder();
+        
+        Set<String> addedClasses = new LinkedHashSet<>();
+        for (ParamParser paramParser : paramParsers){
+            String classDef = paramParser.generateCustomDataClass();
+            if (!classDef.isEmpty() && !addedClasses.contains(classDef)){
+                classes.append(classDef).append("\n");
+                addedClasses.add(classDef);
             }
         }
 
+        return classes.toString();
+    }
+
+    private String addMatrixParsingHelpers(List<ParamParser> paramParsers){
+        StringBuilder helpers = new StringBuilder();
+        
+        for (ParamParser paramParser : paramParsers){
+            helpers.append(paramParser.generateHelperMethod());
+        }
+
+        return helpers.toString();
+            
+    }
+
+    // custom datatype classes*
+    // public clsas Solution {
+        // helper methods
+            // start main
+                // declarations*
+                // scanner
+                // input parsers
+                // method call*
+                // output parsing
+                // print statement* (for void return type)
+            // end main
+    // }
+    @Override
+    public String generateTailCode(String methodToCall) {
+
+        MethodSignature signature = javaTailCodeGenerationUtils.parseStarterCode(methodToCall);
+        List<ParamParser> paramParsers = gatherParamParsers(signature.params);
+
+        ParamParser outputParser;
+
         StringBuilder out = new StringBuilder();
+
+    
+
+        if ("void".equals(signature.returnType)){
+            outputParser = paramParsers.get(0); // Sending the output parser in separately for the primary param (assumed to be the first one)
+        } else {
+            outputParser = ParamParsers.getParser(javaTailCodeGenerationUtils.dataTypeResolver(signature.returnType));
+        }
+        // Have to think about replacing the variable in template
+
+        logger.info("Entered the generate tail code method");
+
+       // custom datatypes (defined outside the solution class for it to be commonly accessible for user solution)
+        out.append(addCustomDataTypeClasses(paramParsers));
+
         out.append("public class Solution {\n");
 
-        // Generate helper methods if needed
-        if (!neededHelpers.isEmpty()) {
-            out.append(generateHelperMethods(new ArrayList<>(neededHelpers)));
-        }
+        // matrix helpers
+        out.append(addMatrixParsingHelpers(paramParsers)); 
 
-        out.append("    public static void main(String[] args) {\n");
-        out.append("        Scanner scanner = new Scanner(System.in);\n\n");
+        // main function
+        out.append(addMainMethod(paramParsers, outputParser, signature));
+        
 
-        // Read and parse each parameter
-        for (int i = 0; i < signature.params.size(); i++) {
-            out.append(generateParamParsing(signature.params.get(i), i));
-        }
-
-        out.append("\n");
-
-        // Call method and handle output
-        out.append(generateMethodCall(signature));
-
-        out.append("        scanner.close();\n");
-        out.append("    }\n");
-        out.append("}\n");
+        // close class
+        out.append("}\n"); 
 
         return out.toString();
     }
 
-    private MethodSignature parseStarterCode(String starterCode) {
-
-        Pattern pattern = Pattern.compile(
-            "(?:public|protected|private|static|final|\\s)*" +
-            "([\\w<>\\[\\]]+)\\s+" +        // return type (captured)
-            "([a-zA-Z_]\\w*)\\s*" +         // method name
-            "\\(([^)]*)\\)"                 // params
-        );
     
-        Matcher matcher = pattern.matcher(starterCode);
-    
-        if (!matcher.find()) {
-            throw new IllegalArgumentException("No method signature found");
-        }
-    
-        String returnType = matcher.group(1);
-        String methodName = matcher.group(2);
-        String paramsStr = matcher.group(3).trim();
-    
-        List<Param> params = new ArrayList<>();
-    
-        if (!paramsStr.isEmpty()) {
-            int depth = 0;
-            int start = 0;
-    
-            for (int i = 0; i < paramsStr.length(); i++) {
-                char c = paramsStr.charAt(i);
-    
-                if (c == '<') depth++;
-                else if (c == '>') depth--;
-                else if (c == ',' && depth == 0) {
-                    extractParam(paramsStr.substring(start, i), params);
-                    start = i + 1;
-                }
-            }
-    
-            // last param
-            extractParam(paramsStr.substring(start), params);
-        }
-    
-        return new MethodSignature(returnType, methodName, params);
-    }
-
-    private void extractParam(String raw, List<Param> params) {
-        String param = raw.trim();
-        int lastSpace = param.lastIndexOf(' ');
-
-        if (lastSpace == -1) {
-            throw new IllegalArgumentException("Invalid parameter: " + param);
-        }
-
-        String type = param.substring(0, lastSpace).trim();
-        String name = param.substring(lastSpace + 1).trim();
-
-        params.add(new Param(type, name));
-    }
 
     
 }

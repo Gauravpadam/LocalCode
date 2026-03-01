@@ -18,10 +18,8 @@ import com.localcode.dto.ExecutionResult;
 import com.localcode.dto.ExecutionStatus;
 import com.localcode.dto.ResourceMetrics;
 import com.localcode.exception.ExecutionException;
-import com.localcode.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -32,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.concurrent.*;
 
 /**

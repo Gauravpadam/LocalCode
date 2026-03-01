@@ -3,37 +3,23 @@ import org.springframework.stereotype.Component;
 import com.localcode.services.DataType;
 import com.localcode.services.MethodSignature;
 import com.localcode.services.Param;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.regex.*;
+import com.localcode.services.JSTailCodeGenerationUtils;
 
 @Component("JSCodeEmitter")
 public class JSCodeEmitter implements CodeEmitter {
 
-    @Override
-    public DataType dataTypeMap(String paramType) {
-        return switch (paramType) {
-            case "number" -> DataType.INT;
-            case "bigint" -> DataType.LONG;
-            case "string" -> DataType.STRING;
-            case "boolean" -> DataType.BOOLEAN;
-            case "number[]" -> DataType.ARRAY_INT;
-            case "string[]" -> DataType.ARRAY_STRING;
-            case "Array<number>" -> DataType.LIST_INT;
-            case "Array<string>" -> DataType.LIST_STRING;
-            case "number[][]" -> DataType.MATRIX_INT;
-            case "string[][]" -> DataType.MATRIX_STRING;
-            default -> throw new IllegalArgumentException("Unknown JS type: " + paramType);
-        };
+    private final JSTailCodeGenerationUtils jsTailCodeGenerationUtils;
+
+    public JSCodeEmitter(JSTailCodeGenerationUtils jsTailCodeGenerationUtils) {
+        this.jsTailCodeGenerationUtils = jsTailCodeGenerationUtils;
     }
 
     @Override
-    public String generateImports() {
-        return ""; // JS usually just uses plain code for parsing
+    public String generateHeadCode() {
+        return jsTailCodeGenerationUtils.commonImports();
     }
 
-    @Override
-    public String generateInputParsing(DataType dataType) {
+    private String generateInputParsing(DataType dataType) {
         return switch (dataType) {
             case INT -> "parseInt(input.trim())";
             case LONG -> "BigInt(input.trim())";
@@ -89,7 +75,7 @@ public class JSCodeEmitter implements CodeEmitter {
         StringBuilder code = new StringBuilder();
         code.append(String.format("const input%d = readline();\n", index));
         
-        DataType dt = dataTypeMap(param.type);
+        DataType dt = jsTailCodeGenerationUtils.dataTypeResolver(param.type);
         String parseExpr = generateInputParsing(dt).replace("input", "input" + index);
         
         code.append(String.format("const %s = %s;\n", param.name, parseExpr));
@@ -112,7 +98,7 @@ public class JSCodeEmitter implements CodeEmitter {
 
     @Override
     public String generateTailCode(String methodToCall) {
-        MethodSignature signature = parseStarterCode(methodToCall);
+        MethodSignature signature = jsTailCodeGenerationUtils.parseStarterCode(methodToCall);
 
         StringBuilder out = new StringBuilder();
         out.append("function main() {\n");
@@ -136,49 +122,4 @@ public class JSCodeEmitter implements CodeEmitter {
 
         return out.toString();
     }
-
-    private MethodSignature parseStarterCode(String starterCode) {
-        Pattern pattern = Pattern.compile(
-            "function\\s+" +
-            "([a-zA-Z_]\\w*)\\s*" +         // function name
-            "\\(([^)]*)\\)"                 // params
-        );
-    
-        Matcher matcher = pattern.matcher(starterCode);
-    
-        if (!matcher.find()) {
-            throw new IllegalArgumentException("No function signature found");
-        }
-    
-        String methodName = matcher.group(1);
-        String paramsStr = matcher.group(2).trim();
-        String returnType = "void"; // JS doesn't have explicit return types
-    
-        List<Param> params = new ArrayList<>();
-    
-        if (!paramsStr.isEmpty()) {
-            String[] paramParts = paramsStr.split(",");
-            for (String param : paramParts) {
-                extractParam(param.trim(), params);
-            }
-        }
-    
-        return new MethodSignature(returnType, methodName, params);
-    }
-
-    private void extractParam(String raw, List<Param> params) {
-        String param = raw.trim();
-        // JS params are typically just names, or name: type
-        if (param.contains(":")) {
-            String[] parts = param.split(":");
-            String name = parts[0].trim();
-            String type = parts.length > 1 ? parts[1].trim() : "any";
-            params.add(new Param(type, name));
-        } else {
-            params.add(new Param("any", param));
-        }
-    }
 }
-
-
-    

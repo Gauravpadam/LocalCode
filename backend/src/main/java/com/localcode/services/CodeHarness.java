@@ -1,11 +1,10 @@
 package com.localcode.services;
 
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.localcode.dto.ExecutionRequest;
-import com.localcode.dto.ProblemDetailDTO;
+
 import com.localcode.services.Emitters.CodeEmitter;
 import com.localcode.services.Emitters.EmitterFactory;
 
@@ -17,6 +16,7 @@ public class CodeHarness {
 
     public CodeHarness(
         EmitterFactory emitterFactory
+        
     ) {
         this.emitterFactory = emitterFactory;
     }
@@ -26,7 +26,8 @@ public class CodeHarness {
         CodeEmitter emitter = emitterFactory.getEmitter(request.getLanguage());
         StringBuilder harness = new StringBuilder();
 
-        harness.append(emitter.generateImports());
+      
+        harness.append(emitter.generateHeadCode());
         harness.append(emitter.generateTailCode(request.getMethodToCall()));
 
         return harness.toString();

@@ -1,11 +1,15 @@
 package com.localcode.services;
 
+import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.Arrays;
+import java.util.Map;
 
-public enum DataType{
-    // not a datatype (reeks)
+public enum ReturnType {
+    // void
     VOID,
-
-     // primitives
+    
+    // primitives
     INT,
     LONG,
     DOUBLE,
@@ -33,7 +37,6 @@ public enum DataType{
     ARRAY_2D_INT,
     ARRAY_2D_LONG,
     ARRAY_2D_STRING,
-    ARRAY_2D_CHAR,
 
     // matrix / 2D (List<List<...>>)
     MATRIX_INT,
@@ -46,5 +49,5 @@ public enum DataType{
     NODE,
 
     // fallback
-    UNKNOWN
+    UNKNOWN; 
 }

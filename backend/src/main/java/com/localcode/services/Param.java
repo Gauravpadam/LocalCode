@@ -8,4 +8,8 @@ public class Param {
             this.type = type;
             this.name = name;
         }
+
+        public String getName(){
+            return this.name;
+        }
     }
