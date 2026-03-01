@@ -16,6 +16,9 @@ public class JavaTailCodeGenerationUtils implements TailCodeGenerationUtils {
     @Override
     public DataType dataTypeResolver(String dataType){
         return switch (dataType){
+            // not a datatype (reeks)
+            case "void" -> DataType.VOID;
+
             // primitives
             case "int" -> DataType.INT;
             case "long" -> DataType.LONG;
@@ -55,6 +58,7 @@ public class JavaTailCodeGenerationUtils implements TailCodeGenerationUtils {
             case "int[][]" -> DataType.ARRAY_2D_INT;
             case "long[][]" -> DataType.ARRAY_2D_LONG;
             case "String[][]" -> DataType.ARRAY_2D_STRING;
+            case "char[][]" -> DataType.ARRAY_2D_CHAR;
 
             // matrices (List<List<...>>)
             case "List<List<Integer>>" -> DataType.MATRIX_INT;
@@ -63,6 +67,12 @@ public class JavaTailCodeGenerationUtils implements TailCodeGenerationUtils {
             case "ArrayList<List<Long>>" -> DataType.MATRIX_LONG;
             case "List<List<String>>" -> DataType.MATRIX_STRING;
             case "ArrayList<List<String>>" -> DataType.MATRIX_STRING;
+
+            // custom datatypes (reeks, still too many places to change)
+            case "TreeNode" -> DataType.TREE_NODE;
+            case "ListNode" -> DataType.LIST_NODE;
+            case "Node" -> DataType.NODE;
+
 
             default -> throw new IllegalArgumentException("Unknown Java type: " + dataType);
         };

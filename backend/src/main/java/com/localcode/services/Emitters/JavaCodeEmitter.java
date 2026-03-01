@@ -13,6 +13,8 @@ import com.localcode.services.JavaTailCodeGenerationUtils;
 import com.localcode.services.Emitters.ParamParsers.ParamParser;
 import com.localcode.services.Emitters.ParamParsers.ParamParsers;
 import com.localcode.services.DataType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.localcode.services.ReturnType;
 
@@ -23,7 +25,9 @@ import com.localcode.services.ReturnType;
 @Component("JavaCodeEmitter")
 public class JavaCodeEmitter implements CodeEmitter{
 
+
     private final JavaTailCodeGenerationUtils javaTailCodeGenerationUtils;
+    private final Logger logger = LoggerFactory.getLogger(JavaCodeEmitter.class);
 
     public JavaCodeEmitter(JavaTailCodeGenerationUtils javaTailCodeGenerationUtils) {
         this.javaTailCodeGenerationUtils = javaTailCodeGenerationUtils;
@@ -48,9 +52,13 @@ public class JavaCodeEmitter implements CodeEmitter{
     
     private String generateMethodCall(String returnType, String methodName, List<Param> params) {
             StringBuilder code = new StringBuilder();
+
+            logger.info(String.format("The return type received in generateMethodCall is: %s", returnType));
+
             
             // void vs normal returntype
-            if (returnType != "void") {
+            if (!"void".equals(returnType)) {
+                logger.info("So it's void, but I still trigger the void control because why tf not");
                 code.append("Result result = new Result();");
                 code.append(String.format("        %s res = result.%s(", returnType, methodName));
                 for (int i = 0; i < params.size(); i++) {
@@ -102,10 +110,20 @@ public class JavaCodeEmitter implements CodeEmitter{
         return inputParsers.toString();
     }
 
-    private String addOutputFormatters(ParamParser outputParser, Param PrimaryParam){
+    private String addOutputFormatters(ParamParser outputParser, String returnType, Param PrimaryParam){
         StringBuilder outputFormatters = new StringBuilder();
 
-        outputFormatters.append(outputParser.generateOutputFormatting());
+        logger.info("Inside outputFormatter the returnType is %s".formatted(returnType));
+
+        if ("void".equals(returnType)){
+            // If it's void, we print the primary parameter(s) instead after parsing
+            outputFormatters.append(outputParser.generateOutputFormatting().replace("%s", PrimaryParam.name));
+            // If there are multiple primary parameters, we would need to handle that as well (not implemented here)
+        } else {
+            outputFormatters.append(outputParser.generateOutputFormatting().replace("%s", "res"));
+        }
+
+        logger.info("This is how outputFormatter looks: \n %s \n".formatted(outputFormatters));
 
         return outputFormatters.toString();
     }
@@ -122,7 +140,8 @@ public class JavaCodeEmitter implements CodeEmitter{
         StringBuilder mainMethod = new StringBuilder();
         mainMethod.append("    public static void main(String[] args) {\n");
         mainMethod.append("        Scanner scanner = new Scanner(System.in);\n\n");
-        ReturnType returnType = javaTailCodeGenerationUtils.returnTypeResolver(signature.returnType);
+
+        logger.info("Entered addMainMethod");
 
 
         // if (signature.returnType) == 'void'{
@@ -164,7 +183,7 @@ public class JavaCodeEmitter implements CodeEmitter{
         mainMethod.append(generateMethodCall(signature.returnType, signature.methodName, signature.params));
 
         // handle output
-        mainMethod.append(addOutputFormatters(outputParser, signature.params.get(0))); // Assuming first one is the primary param
+        mainMethod.append(addOutputFormatters(outputParser, signature.returnType, signature.params.get(0))); // Assuming first one is the primary param
 
        
         mainMethod.append("        scanner.close();\n");
@@ -199,9 +218,9 @@ public class JavaCodeEmitter implements CodeEmitter{
             
     }
 
+    // custom datatype classes*
     // public clsas Solution {
         // helper methods
-        // custom datatype classes*
             // start main
                 // declarations*
                 // scanner
@@ -216,19 +235,29 @@ public class JavaCodeEmitter implements CodeEmitter{
 
         MethodSignature signature = javaTailCodeGenerationUtils.parseStarterCode(methodToCall);
         List<ParamParser> paramParsers = gatherParamParsers(signature.params);
-        ParamParser outputParser = ParamParsers.getParser(javaTailCodeGenerationUtils.dataTypeResolver(signature.returnType)); // Sending the output parser in separately
-        // Have to think about replacing the variable in template
 
+        ParamParser outputParser;
 
         StringBuilder out = new StringBuilder();
+
+    
+
+        if ("void".equals(signature.returnType)){
+            outputParser = paramParsers.get(0); // Sending the output parser in separately for the primary param (assumed to be the first one)
+        } else {
+            outputParser = ParamParsers.getParser(javaTailCodeGenerationUtils.dataTypeResolver(signature.returnType));
+        }
+        // Have to think about replacing the variable in template
+
+        logger.info("Entered the generate tail code method");
+
+       // custom datatypes (defined outside the solution class for it to be commonly accessible for user solution)
+        out.append(addCustomDataTypeClasses(paramParsers));
+
         out.append("public class Solution {\n");
 
         // matrix helpers
-        out.append(addMatrixParsingHelpers(paramParsers));
-
-        // custom datatypes
-        out.append(addCustomDataTypeClasses(paramParsers));
-        
+        out.append(addMatrixParsingHelpers(paramParsers)); 
 
         // main function
         out.append(addMainMethod(paramParsers, outputParser, signature));

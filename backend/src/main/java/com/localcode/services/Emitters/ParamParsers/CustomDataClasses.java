@@ -8,7 +8,7 @@ class TreeNodeProviderClass implements ProvidesCustomDataClass {
     @Override
     public String provideCustomDataClass() {
         return """
-                static class TreeNode {
+                 class TreeNode {
                     int val;
                     TreeNode left;
                     TreeNode right;
@@ -28,7 +28,7 @@ class ListNodeProviderClass implements ProvidesCustomDataClass {
     @Override
     public String provideCustomDataClass() {
         return """
-                static class ListNode {
+                class ListNode {
                     int val;
                     ListNode next;
                     ListNode() {}
@@ -46,7 +46,7 @@ class NodeProviderClass implements ProvidesCustomDataClass {
     @Override
     public String provideCustomDataClass() {
         return """
-                static class Node {
+                class Node {
                     public int val;
                     public java.util.List<Node> children;
 

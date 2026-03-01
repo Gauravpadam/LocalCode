@@ -18,6 +18,17 @@ interface CustomDataClasses{
     String generateCustomDataClasses();
 }
 
+class VoidParser extends ParamParser{
+    public VoidParser() {
+        super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
+    }
+
+    @Override
+    public String generateInputParsing() {
+        return "null";
+    }
+}
+
 class IntParser extends ParamParser {
     public IntParser() {
         super(new DirectDisplayFormatter(), new DoesNotNeedMatrixParsing(), new NeedsNoCustomDataType());
@@ -150,8 +161,12 @@ class CharArrayParser extends ParamParser {
 
     @Override
     public String generateInputParsing() {
-        return "Arrays.stream(input.trim().substring(1, input.length()-1).split(\",\"))"
-                + ".map(String::trim).map(stringz->stringz.replaceAll(\" \", \"\")).toArray(char[]::new)";
+return "input.trim().substring(1, input.length() - 1)"
+     + ".replace(\"\\\"\", \"\")"   // strip double quotes (My convention is double quotes for now)
+     + ".replace(\",\", \"\")"      // strip commas
+     + ".replace(\" \", \"\")"      // strip spaces
+     + ".toCharArray()";
+
     }
 }
 
@@ -222,6 +237,17 @@ class Long2DArrayParser extends ParamParser {
     @Override
     public String generateInputParsing() {
         return "parseLongArray2D(input)";
+    }
+}
+
+class Char2DArrayParser extends ParamParser {
+    public Char2DArrayParser() {
+        super(new Primitive2DCharArrayFormatter(), new Primitive2DCharHelper(), new NeedsNoCustomDataType());
+    }
+
+    @Override
+    public String generateInputParsing() {
+        return "parseCharArray2D(input)";
     }
 }
 
@@ -305,6 +331,7 @@ class NodeParser extends ParamParser {
 public class ParamParsers{
         public static ParamParser getParser(DataType dataType) {
             return switch (dataType) {
+                case VOID -> new VoidParser(); // smells if I call it a ParamParser, a void cannot be a param type
                 case INT -> new IntParser();
                 case LONG -> new LongParser();
                 case DOUBLE -> new DoubleParser();
@@ -326,6 +353,7 @@ public class ParamParsers{
 
                 case ARRAY_2D_INT -> new Int2DArrayParser();
                 case ARRAY_2D_LONG -> new Long2DArrayParser();
+                case ARRAY_2D_CHAR -> new Char2DArrayParser();
                 case ARRAY_2D_STRING -> new String2DArrayParser();
                 
                 case MATRIX_INT -> new IntMatrixParser();

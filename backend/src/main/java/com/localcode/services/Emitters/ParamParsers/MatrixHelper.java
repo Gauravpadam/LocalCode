@@ -54,6 +54,26 @@ class Primitive2DLongHelper implements ProvidesMatrixHelper {
     }
 }
 
+class Primitive2DCharHelper implements ProvidesMatrixHelper {
+    @Override
+    public String provideHelper() {
+        return """
+                private static char[][] parseCharArray2D(String input) {
+                    String tmp = input.trim().substring(1, input.trim().length() - 1);
+                    List<char[]> rows = new ArrayList<>();
+                    if (!tmp.isEmpty()) {
+                        String[] parts = tmp.split("\\\\],\\\\s*\\\\[");
+                        for (String r : parts) {
+                            r = r.replaceAll("^\\\\[|\\\\]$", "");
+                            rows.add(r.replace("\\"", "").replace(",", "").replace(" ", "").toCharArray());
+                        }
+                    }
+                    return rows.toArray(new char[0][]);
+                }
+            """;
+    }
+}
+
 class Primitive2DStringHelper implements ProvidesMatrixHelper {
     @Override
     public String provideHelper() {
