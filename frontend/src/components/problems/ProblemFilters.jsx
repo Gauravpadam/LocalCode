@@ -1,59 +1,58 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 /**
- * ProblemFilters component for filtering problems
- * Provides filters for difficulty, tags, and status with amber active states
+ * ProblemFilters component (DaisyUI version)
+ * Uses DaisyUI buttons, groups, and theme colors
  */
-function ProblemFilters({ 
-  difficulty, 
-  onDifficultyChange, 
-  status, 
+function ProblemFilters({
+  difficulty,
+  onDifficultyChange,
+  status,
   onStatusChange,
   tags,
   onTagsChange,
   availableTags = [],
-  className = '' 
+  className = "",
 }) {
-  const difficulties = ['All', 'Easy', 'Medium', 'Hard'];
+  const difficulties = ["all", "easy", "medium", "hard"];
   const statuses = [
-    { value: 'all', label: 'All' },
-    { value: 'solved', label: 'Solved' },
-    { value: 'attempted', label: 'Attempted' },
-    { value: 'not_attempted', label: 'Unsolved' },
+    { value: "all", label: "All" },
+    { value: "solved", label: "Solved" },
+    { value: "attempted", label: "Attempted" },
+    { value: "not_attempted", label: "Unsolved" },
   ];
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Difficulty Filter */}
+    <div className={`space-y-6 ${className}`}>
+      {/* Difficulty */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Difficulty
+        <label className="label">
+          <span className="label-text">Difficulty</span>
         </label>
         <div className="flex flex-wrap gap-2">
           {difficulties.map((diff) => {
-            const isActive = difficulty === diff.toLowerCase();
+            const isActive = difficulty === diff;
             return (
               <button
                 key={diff}
-                onClick={() => onDifficultyChange(diff.toLowerCase())}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                }`}
+                type="button"
                 aria-pressed={isActive}
+                onClick={() => onDifficultyChange(diff)}
+                className={`btn btn-sm ${
+                  isActive ? "btn-warning" : "btn-outline"
+                }`}
               >
-                {diff}
+                {diff.charAt(0).toUpperCase() + diff.slice(1)}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Status Filter */}
+      {/* Status */}
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Status
+        <label className="label">
+          <span className="label-text">Status</span>
         </label>
         <div className="flex flex-wrap gap-2">
           {statuses.map((stat) => {
@@ -61,13 +60,12 @@ function ProblemFilters({
             return (
               <button
                 key={stat.value}
-                onClick={() => onStatusChange(stat.value)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                }`}
+                type="button"
                 aria-pressed={isActive}
+                onClick={() => onStatusChange(stat.value)}
+                className={`btn btn-sm ${
+                  isActive ? "btn-warning" : "btn-outline"
+                }`}
               >
                 {stat.label}
               </button>
@@ -76,11 +74,11 @@ function ProblemFilters({
         </div>
       </div>
 
-      {/* Tags Filter (if available tags provided) */}
+      {/* Tags */}
       {availableTags.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            Tags
+          <label className="label">
+            <span className="label-text">Tags</span>
           </label>
           <div className="flex flex-wrap gap-2">
             {availableTags.map((tag) => {
@@ -88,19 +86,16 @@ function ProblemFilters({
               return (
                 <button
                   key={tag}
-                  onClick={() => {
-                    if (isActive) {
-                      onTagsChange(tags.filter((t) => t !== tag));
-                    } else {
-                      onTagsChange([...tags, tag]);
-                    }
-                  }}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                  }`}
+                  type="button"
                   aria-pressed={isActive}
+                  onClick={() =>
+                    isActive
+                      ? onTagsChange(tags.filter((t) => t !== tag))
+                      : onTagsChange([...tags, tag])
+                  }
+                  className={`btn btn-sm ${
+                    isActive ? "btn-warning" : "btn-outline"
+                  }`}
                 >
                   {tag}
                 </button>
@@ -110,30 +105,33 @@ function ProblemFilters({
         </div>
       )}
 
-      {/* Active Filters Summary */}
-      {(difficulty !== 'all' || status !== 'all' || tags.length > 0) && (
-        <div className="pt-2 border-t border-slate-700">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">
-              {[
-                difficulty !== 'all' && `Difficulty: ${difficulty}`,
-                status !== 'all' && `Status: ${status}`,
-                tags.length > 0 && `Tags: ${tags.length}`,
-              ]
-                .filter(Boolean)
-                .join(' • ')}
-            </span>
-            <button
-              onClick={() => {
-                onDifficultyChange('all');
-                onStatusChange('all');
-                onTagsChange([]);
-              }}
-              className="text-sm text-amber-500 hover:text-amber-400 transition-colors"
-            >
-              Clear all
-            </button>
-          </div>
+      {/* Active filters summary */}
+      {(difficulty !== "all" || status !== "all" || tags.length > 0) && (
+        <div className="divider" />
+
+      )}
+      {(difficulty !== "all" || status !== "all" || tags.length > 0) && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="opacity-70">
+            {[
+              difficulty !== "all" && `Difficulty: ${difficulty}`,
+              status !== "all" && `Status: ${status}`,
+              tags.length > 0 && `Tags: ${tags.length}`,
+            ]
+              .filter(Boolean)
+              .join(" • ")}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              onDifficultyChange("all");
+              onStatusChange("all");
+              onTagsChange([]);
+            }}
+            className="btn btn-link btn-sm text-warning"
+          >
+            Clear all
+          </button>
         </div>
       )}
     </div>

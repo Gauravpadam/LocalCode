@@ -3,6 +3,58 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../contexts/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 
+const FAKE_SUBMISSION_DETAIL = {
+  id: 1,
+  problemId: 101,
+  problemTitle: 'Two Sum',
+  language: 'javascript',
+  status: 'wrong_answer',
+  runtimeMs: 34,
+  memoryKb: 20480,
+  submittedAt: '2025-01-12T14:32:10Z',
+  code: `function twoSum(nums, target) {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const diff = target - nums[i];
+    if (map.has(diff)) {
+      return [map.get(diff), i];
+    }
+    map.set(nums[i], i);
+  }
+}`,
+  totalTests: 5,
+  passedTests: 3,
+  testResults: [
+    {
+      id: 1,
+      passed: true,
+      runtimeMs: 5,
+      memoryKb: 4096,
+      input: 'nums = [2,7,11,15], target = 9',
+      expectedOutput: '[0,1]',
+      actualOutput: '[0,1]',
+    },
+    {
+      id: 2,
+      passed: false,
+      runtimeMs: 6,
+      memoryKb: 4096,
+      input: 'nums = [3,2,4], target = 6',
+      expectedOutput: '[1,2]',
+      actualOutput: '[0,1]',
+    },
+    {
+      id: 3,
+      passed: false,
+      errorMessage: 'Wrong Answer on edge case',
+      input: 'nums = [3,3], target = 6',
+      expectedOutput: '[0,1]',
+      actualOutput: '[0,0]',
+    },
+  ],
+};
+
+
 function SubmissionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,6 +71,12 @@ function SubmissionDetail() {
     try {
       setLoading(true);
       setError(null);
+      if (import.meta.env.VITE_USE_FAKE_SUBMISSIONS === 'true') {
+      // simulate delay
+      await new Promise((r) => setTimeout(r, 300));
+      setSubmission({ ...FAKE_SUBMISSION_DETAIL, id });
+      return;
+    }
       const response = await api.get(API_ENDPOINTS.SUBMISSION_DETAIL(id));
       setSubmission(response.data);
     } catch (err) {

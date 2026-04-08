@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import SubmissionItem from './SubmissionItem';
 import { getProblemSubmissions } from '../../services/submissionService';
+import { dummySolutions } from '../../mockDataForTestingUIs/dummySolutions';
 
 /**
  * SolutionsTab component for displaying submission history
@@ -20,6 +21,17 @@ function SolutionsTab({ problemId }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (import.meta.env.VITE_USE_FAKE_PROBLEMS === 'true') {
+      // simulate delay
+      const fetchFakeSubmissions = async () => {
+        await new Promise((r) => setTimeout(r, 300));
+        setSubmissions(dummySolutions);
+        setLoading(false);
+      };
+      fetchFakeSubmissions();
+      return;
+    }
+
     const fetchSubmissions = async () => {
       if (!problemId) {
         setLoading(false);

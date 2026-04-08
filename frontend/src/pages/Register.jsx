@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Button from '../components/common/Button';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -11,44 +12,24 @@ function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const validatePassword = (pwd) => {
-    if (pwd.length < 8) {
-      return 'Password must be at least 8 characters long';
-    }
-    return null;
-  };
-
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return 'Please enter a valid email address';
-    }
-    return null;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
-    // Validation
-    if (!username.trim()) {
-      setError('Username is required');
-      return;
-    }
-    if (username.length < 3) {
+    if (!username.trim() || username.length < 3) {
       setError('Username must be at least 3 characters long');
       return;
     }
-    
-    const emailError = validateEmail(email);
-    if (emailError) {
-      setError(emailError);
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
       return;
     }
-    
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
       return;
     }
 
@@ -64,75 +45,90 @@ function Register() {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-12">
-      <div className="card">
-        <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
+      {/* Simple, Solid Flat Card */}
+      <div className="w-full max-w-md p-8 rounded-2xl bg-base-200 border border-base-300 shadow-sm">
+        <div className="mb-8 text-left">
+          <h2 className="text-2xl font-bold text-base-content">Create Account</h2>
+          <p className="text-sm text-base-content/60 mt-1">Join the LocalCode community</p>
+        </div>
         
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-            {error}
+          <div className="alert alert-error flex justify-start gap-2 py-3 mb-6 text-sm rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-              Username
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text text-xs font-bold uppercase opacity-50">Username</span>
             </label>
             <input
               type="text"
-              id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="input-field"
-              placeholder="Choose a username"
+              className="input input-bordered w-full bg-base-100 rounded-lg focus:outline-primary"
+              placeholder="coder_123"
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 mt-1">At least 3 characters</p>
+            <label className="label py-1">
+              <span className="label-text-alt opacity-40">Min. 3 characters</span>
+            </label>
           </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text text-xs font-bold uppercase opacity-50">Email Address</span>
             </label>
             <input
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-field"
-              placeholder="Enter your email"
+              className="input input-bordered w-full bg-base-100 rounded-lg focus:outline-primary"
+              placeholder="name@example.com"
               disabled={loading}
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
+
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text text-xs font-bold uppercase opacity-50">Password</span>
             </label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field"
-              placeholder="Choose a password"
+              className="input input-bordered w-full bg-base-100 rounded-lg focus:outline-primary"
+              placeholder="••••••••"
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 mt-1">At least 8 characters</p>
+            <label className="label py-1">
+              <span className="label-text-alt opacity-40">Min. 8 characters</span>
+            </label>
           </div>
-          <button 
+
+          <Button 
             type="submit" 
-            className="btn-primary w-full"
+            variant="primary"
+            className="w-full h-12 rounded-lg mt-4 font-bold"
             disabled={loading}
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
-          </button>
+            {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Create Account'}
+          </Button>
         </form>
-        <p className="text-center text-sm text-gray-600 mt-4">
-          Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
-            Login
-          </Link>
-        </p>
+
+        <div className="mt-8 pt-6 border-t border-base-300 text-center">
+          <p className="text-sm opacity-70">
+            Already have an account?{' '}
+            <Link to="/login" className="text-primary font-bold hover:underline">
+              Sign In
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

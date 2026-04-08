@@ -1,86 +1,98 @@
-import PropTypes from 'prop-types';
-import ProblemRow from './ProblemRow';
+import PropTypes from "prop-types";
+import ProblemRow from "./ProblemRow";
 
 /**
- * ProblemsTable component for displaying problems in a table format
- * Features sortable columns and responsive design
+ * ProblemsTable component (DaisyUI)
  */
-function ProblemsTable({ 
-  problems, 
-  sortBy, 
-  onSortChange, 
+function ProblemsTable({
+  problems,
+  sortBy,
+  onSortChange,
   loading = false,
-  className = '' 
+  className = "",
 }) {
   const columns = [
-    { key: 'status', label: 'Status', sortable: false, width: 'w-16' },
-    { key: 'title', label: 'Title', sortable: true, width: 'flex-1' },
-    { key: 'difficulty', label: 'Difficulty', sortable: true, width: 'w-32' },
-    { key: 'tags', label: 'Tags', sortable: false, width: 'w-48' },
+    { key: "status", label: "Status", sortable: false },
+    { key: "title", label: "Title", sortable: true },
+    { key: "difficulty", label: "Difficulty", sortable: true },
+    { key: "tags", label: "Tags", sortable: false },
   ];
 
   const handleSort = (columnKey) => {
-    if (columnKey === sortBy) {
-      // Toggle sort direction or reset
-      onSortChange(null);
-    } else {
-      onSortChange(columnKey);
-    }
+    onSortChange(columnKey === sortBy ? null : columnKey);
   };
 
   const getSortIcon = (columnKey) => {
     if (sortBy !== columnKey) {
       return (
-        <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        <svg
+          className="w-4 h-4 opacity-60"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+          />
         </svg>
       );
     }
     return (
-      <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+      <svg
+        className="w-4 h-4 text-warning"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M5 15l7-7 7 7"
+        />
       </svg>
     );
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="text-slate-400">Loading problems...</div>
+      <div className="flex justify-center py-12">
+        <span className="loading loading-spinner loading-md" />
       </div>
     );
   }
 
   if (problems.length === 0) {
     return (
-      <div className="bg-slate-850 rounded-lg border border-slate-700 p-8 text-center">
-        <p className="text-slate-400">No problems found matching your filters.</p>
+      <div className="alert alert-info">
+        <span>No problems found matching your filters.</span>
       </div>
     );
   }
 
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <div className="bg-slate-850 rounded-lg border border-slate-700">
-        <table className="w-full">
-          <thead className="bg-slate-800 border-b border-slate-700">
+      <div className="card bg-base-100 border border-base-300">
+        <table className="table table-zebra w-full">
+          <thead className="bg-base-200">
             <tr>
               {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className={`px-4 py-3 text-left text-sm font-medium text-slate-300 ${column.width}`}
-                >
+                <th key={column.key}>
                   {column.sortable ? (
                     <button
+                      type="button"
                       onClick={() => handleSort(column.key)}
-                      className="flex items-center gap-2 hover:text-amber-500 transition-colors focus:outline-none focus:text-amber-500"
+                      className="btn btn-ghost btn-xs gap-1"
                       aria-label={`Sort by ${column.label}`}
                     >
                       {column.label}
                       {getSortIcon(column.key)}
                     </button>
                   ) : (
-                    <span>{column.label}</span>
+                    column.label
                   )}
                 </th>
               ))}
@@ -98,15 +110,7 @@ function ProblemsTable({
 }
 
 ProblemsTable.propTypes = {
-  problems: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      title: PropTypes.string.isRequired,
-      difficulty: PropTypes.string.isRequired,
-      userStatus: PropTypes.string,
-      tags: PropTypes.arrayOf(PropTypes.string),
-    })
-  ).isRequired,
+  problems: PropTypes.array.isRequired,
   sortBy: PropTypes.string,
   onSortChange: PropTypes.func.isRequired,
   loading: PropTypes.bool,

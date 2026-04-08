@@ -46,6 +46,19 @@ export function AuthProvider({ children }) {
 
   // Load user from localStorage on mount
   useEffect(() => {
+    if (import.meta.env.VITE_BYPASS_AUTH === 'true') {
+    const fakeUser = {
+      id: 1,
+      username: 'dev-user',
+      role: 'admin',
+    };
+
+    setUser(fakeUser);
+    localStorage.setItem('token', 'dev-token');
+    localStorage.setItem('user', JSON.stringify(fakeUser));
+    setLoading(false);
+    return;
+  }
     const token = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
     

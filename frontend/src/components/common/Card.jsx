@@ -1,19 +1,14 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-/**
- * Card component with slate styling
- * Provides a consistent elevated surface for content
- */
-function Card({ children, className = '', hover = false, ...props }) {
-  const baseStyles = 'bg-slate-850 rounded-lg border border-slate-700 p-6';
-  const hoverStyles = hover ? 'hover:border-slate-600 transition-colors cursor-pointer' : '';
+function Card({ children, className = "", hover = true, ...props }) {
+  const baseStyles = "card shadow-xl border border-base-300 bg-base-300/50 ";
+  const hoverStyles = hover
+    ? "hover:border-base-content shadow-xl transition-all duration-300 cursor-pointer"
+    : "";
 
   return (
-    <div 
-      className={`${baseStyles} ${hoverStyles} ${className}`}
-      {...props}
-    >
-      {children}
+    <div className={`${baseStyles} ${hoverStyles} ${className}`} {...props}>
+      <div className="card-body">{children}</div>
     </div>
   );
 }

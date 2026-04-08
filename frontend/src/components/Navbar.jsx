@@ -1,87 +1,76 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Button from './common/Button';
+// ### Navbar (DaisyUI)
+// - Converted from custom Tailwind layout to DaisyUI `navbar`
+// - Removed hardcoded colors in favor of theme tokens
+// - Authentication UI delegated to `ProfileDropdown`
 
-/**
- * Navbar component with new dark theme and amber accents
- */
+
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import Button from "./common/Button";
+import ProfileDropdown from "./ProfileDropdown";
+
+
 function Navbar() {
-  const { user, logout, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  
 
   return (
-    <nav className="bg-slate-850 border-b border-slate-700 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo and main navigation */}
-          <div className="flex">
-            <Link 
-              to="/" 
-              className="flex items-center text-xl font-bold text-amber-500 hover:text-amber-400 transition-colors"
-            >
-              LocalCode
-            </Link>
-            {isAuthenticated() && (
-              <div className="hidden sm:ml-8 sm:flex sm:space-x-6">
-                <Link
-                  to="/problems"
-                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-300 hover:text-amber-500 transition-colors"
-                >
-                  Problems
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-300 hover:text-amber-500 transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/submissions"
-                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-300 hover:text-amber-500 transition-colors"
-                >
-                  Submissions
-                </Link>
-              </div>
-            )}
-          </div>
+    <nav className="navbar bg-base-100/50 border-b-2 border-base-300 p-4 sm:p-6">
+      {/* Navbar Start: Logo */}
+      <div className="navbar-start">
+        <Link
+          to="/"
+          className="text-xl font-bold text-primary-content hover:opacity-80 transition-opacity"
+        >
+          LocalCode
+        </Link>
+      </div>
 
-          {/* User menu */}
-          <div className="flex items-center space-x-4">
-            {isAuthenticated() ? (
-              <>
-                <span className="text-sm font-medium text-slate-300">
-                  {user?.username}
-                </span>
-                <Button
-                  onClick={handleLogout}
-                  variant="secondary"
-                  className="text-sm"
-                >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="text-sm font-medium text-slate-300 hover:text-amber-500 transition-colors"
-                >
-                  Login
-                </Link>
-                <Link to="/register">
-                  <Button variant="primary" className="text-sm">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
+      {/* Navbar Center: Links (Hidden on mobile, visible on desktop) */}
+      <div className="navbar-center hidden lg:flex ">
+        {isAuthenticated() && (
+          <ul className="menu menu-horizontal px-1 gap-2">
+            <li>
+              <Link to="/problems" className="text-sm font-medium z-10 text-secondary-content ">
+                Problems
+              </Link>
+            </li>
+            <li>
+              <Link to="/dashboard" className="text-sm font-medium text-secondary-content ">
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link to="/submissions" className="text-sm font-medium text-secondary-content ">
+                Submissions
+              </Link>
+            </li>
+          </ul>
+        )}
+      </div>
+
+      {/* Navbar End: Auth Buttons & User Info */}
+      <div className="navbar-end">
+        {isAuthenticated() ? (
+          
+          <ProfileDropdown/>
+           
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/login"
+              className="btn btn-ghost btn-sm text-sm font-medium"
+            >
+              Login
+            </Link>
+            <Link to="/register">
+              <Button variant="primary" className="btn-sm">
+                Sign Up
+              </Button>
+            </Link>
           </div>
-        </div>
+        )}
       </div>
     </nav>
   );

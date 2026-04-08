@@ -1,89 +1,61 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
-/* Apply fonts globally */
-body {
-  font-family: 'Inter', system-ui, sans-serif;
+/* This block links DaisyUI to Tailwind v4 variables */
+
+
+
+
+
+@plugin "daisyui/theme" {
+  name: "local";
+  default: false;
+  prefersdark: true;
+  color-scheme: "light";
+  --color-base-100: oklch(13% 0.028 261.692);
+  --color-base-200: oklch(21% 0.034 264.665);
+  --color-base-300: oklch(27% 0.033 256.848);
+  --color-base-content: oklch(96% 0.003 264.542);
+  --color-primary: #22223B;
+  --color-primary-content: #7F7FE5;
+  --color-secondary: #4C4C65;
+  --color-secondary-content: #B89A94;
+  --color-accent: #7F7FE5;
+  --color-accent-content: #22223B;
+  --color-neutral: hsl(213.8 27.5% 26.4%);
+  --color-neutral-content: oklch(98% 0.002 247.839);
+  --color-info: oklch(60% 0.126 221.723);
+  --color-info-content: oklch(98% 0.019 200.873);
+  --color-success: hsl(138.8 62.7% 48.8%);
+  --color-success-content: oklch(98% 0.031 120.757);
+  --color-warning: hsl(46.8 71.4% 47.1%);
+  --color-warning-content: oklch(98% 0.022 95.277);
+  --color-error: hsl(3.1 65.2% 44.2%);
+  --color-error-content: oklch(97% 0.014 343.198);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.21875rem;
+  --border: 0.5px;
+  --depth: 1;
+  --noise: 1;
 }
 
-code, pre, .font-mono {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
-}
 
-@layer components {
-  .btn-primary {
-    @apply bg-primary hover:bg-[#b89a94] text-background font-medium py-2 px-4 rounded-lg transition-colors;
+
+
+html {
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+}
+/* Base styles - Minimalist */
+@layer base {
+  html {
+    @apply overflow-y-scroll;
   }
-  
-  .btn-secondary {
-    @apply bg-slate-800 hover:bg-[#3a3e59] text-slate-100 font-medium py-2 px-4 rounded-lg transition-colors;
+  body {
+    @apply bg-base-100 text-base-content;
+    font-family: Inter, system-ui, sans-serif;
   }
-  
-  .input-field {
-    @apply w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
-  }
-  
-  .card {
-    @apply bg-slate-800 rounded-lg border border-slate-700 p-6;
-  }
-}
-
-/* React Split gutter styles */
-.gutter {
-  background-color: #9a8c98;
-  background-repeat: no-repeat;
-  background-position: 50%;
-}
-
-.gutter.gutter-horizontal {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-  cursor: col-resize;
-}
-
-.gutter.gutter-vertical {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
-  cursor: row-resize;
-}
-
-.gutter:hover {
-  background-color: #c9ada7;
-}
-
-@theme {
-  /* Custom color palette */
-  --color-background: #22223b;
-  --color-primary: #c9ada7;
-  --color-text-light: #f2e9e4;
-  --color-accent-1: #9a8c98;
-  --color-accent-2: #4a4e69;
-  
-  /* Legacy slate colors (mapped to new palette) */
-  --color-slate-850: #22223b;
-  --color-slate-900: #22223b;
-  --color-slate-950: #1a1a2e;
-  
-  /* Legacy amber colors (mapped to primary) */
-  --color-amber-400: #c9ada7;
-  --color-amber-500: #c9ada7;
-  --color-amber-600: #b89a94;
-  
-  /* Font families */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
-  
-  /* Legacy primary colors */
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
-  
-  /* Status colors */
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --color-warning: #c9ada7;
 }

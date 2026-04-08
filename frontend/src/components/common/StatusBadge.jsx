@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
  * StatusBadge component for submission status
  * Displays status with appropriate color coding
  */
-function StatusBadge({ status, className = '' }) {
+function StatusBadge({ status, className = '', outline = false }) {
   const baseStyles = 'px-2 py-1 rounded text-xs font-medium inline-block';
   
   // Convert enum status to display string
@@ -24,30 +24,75 @@ function StatusBadge({ status, className = '' }) {
   const displayStatus = getDisplayStatus(status);
   const statusKey = typeof status === 'object' ? status.toString() : status;
   
-  // Map status to color schemes (using both formats for compatibility)
-  const statusStyles = {
-    'Accepted': 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-    'ACCEPTED': 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-    'Wrong Answer': 'bg-red-500/20 text-red-400 border border-red-500/30',
-    'WRONG_ANSWER': 'bg-red-500/20 text-red-400 border border-red-500/30',
-    'Time Limit Exceeded': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-    'TIME_LIMIT_EXCEEDED': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-    'Memory Limit Exceeded': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-    'MEMORY_LIMIT_EXCEEDED': 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-    'Runtime Error': 'bg-red-500/20 text-red-400 border border-red-500/30',
-    'RUNTIME_ERROR': 'bg-red-500/20 text-red-400 border border-red-500/30',
-    'Compilation Error': 'bg-red-500/20 text-red-400 border border-red-500/30',
-    'COMPILATION_ERROR': 'bg-red-500/20 text-red-400 border border-red-500/30',
-    'Pending': 'bg-slate-500/20 text-slate-400 border border-slate-500/30',
-    'PENDING': 'bg-slate-500/20 text-slate-400 border border-slate-500/30',
-    'Running': 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-    'RUNNING': 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-    'Judging': 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-    'JUDGING': 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-  };
+
+
+  // Define the daisyUI badge class mappings
+let statusStyles;
+
+  if (outline) {
+    statusStyles = {
+    // Green (Success)
+    'ACCEPTED': 'badge badge-success badge-outline',
+    'Accepted': 'badge badge-success badge-outline',
+
+    // Red (Error)
+    'WRONG_ANSWER': 'badge badge-error badge-outline',
+    'Wrong Answer': 'badge badge-error badge-outline',
+    'RUNTIME_ERROR': 'badge badge-error badge-outline',
+    'Runtime Error': 'badge badge-error badge-outline',
+    'COMPILATION_ERROR': 'badge badge-error badge-outline',
+    'Compilation Error': 'badge badge-error badge-outline',
+
+    // Amber (Warning)
+    'TIME_LIMIT_EXCEEDED': 'badge badge-warning badge-outline',
+    'Time Limit Exceeded': 'badge badge-warning badge-outline',
+    'MEMORY_LIMIT_EXCEEDED': 'badge badge-warning badge-outline',
+    'Memory Limit Exceeded': 'badge badge-warning badge-outline',
+
+    // Blue (Info)
+    'RUNNING': 'badge badge-info badge-outline',
+    'Running': 'badge badge-info badge-outline',
+    'JUDGING': 'badge badge-info badge-outline',
+    'Judging': 'badge badge-info badge-outline',
+
+    // Neutral/Slate
+    'PENDING': 'badge badge-neutral badge-outline',
+    'Pending': 'badge badge-neutral badge-outline',
+  };  } else {
+
+    statusStyles = {
+    // Green (Success)
+    'ACCEPTED': 'badge badge-success',
+    'Accepted': 'badge badge-success',
+
+    // Red (Error)
+    'WRONG_ANSWER': 'badge badge-error',
+    'Wrong Answer': 'badge badge-error',
+    'RUNTIME_ERROR': 'badge badge-error',
+    'Runtime Error': 'badge badge-error',
+    'COMPILATION_ERROR': 'badge badge-error',
+    'Compilation Error': 'badge badge-error',
+
+    // Amber (Warning)
+    'TIME_LIMIT_EXCEEDED': 'badge badge-warning',
+    'Time Limit Exceeded': 'badge badge-warning',
+    'MEMORY_LIMIT_EXCEEDED': 'badge badge-warning',
+    'Memory Limit Exceeded': 'badge badge-warning',
+
+    // Blue (Info)
+    'RUNNING': 'badge badge-info',
+    'Running': 'badge badge-info',
+    'JUDGING': 'badge badge-info',
+    'Judging': 'badge badge-info',
+
+    // Neutral/Slate
+    'PENDING': 'badge badge-neutral',
+    'Pending': 'badge badge-neutral',
+  };  }
+
 
   // Default style for unknown statuses
-  const style = statusStyles[statusKey] || statusStyles[displayStatus] || 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
+  const style = statusStyles[statusKey] || statusStyles[displayStatus] || 'badge badge-neutral badge-outline';
 
   return (
     <span className={`${baseStyles} ${style} ${className}`}>

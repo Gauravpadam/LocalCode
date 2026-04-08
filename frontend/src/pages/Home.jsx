@@ -1,11 +1,46 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { getStats } from '../services/submissionService';
-import { CodingQuote, StatsCard, RecentSubmissions } from '../components/home';
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { getStats } from "../services/submissionService";
+import { CodingQuote, StatsCard, RecentSubmissions } from "../components/home";
+import { Link } from "react-router-dom";
+import Card from "../components/common/Card";
+
+const FAKE_HOME_STATS = {
+  solvedProblems: 18,
+  totalSubmissions: 42,
+  accuracy: 73,
+  recentSubmissions: [
+    {
+      id: 1,
+      problemTitle: "Two Sum",
+      status: "accepted",
+      language: "javascript",
+      submittedAt: new Date(Date.now() - 10 * 60000).toISOString(),
+    },
+    {
+      id: 2,
+      problemTitle: "Reverse Linked List",
+      status: "wrong_answer",
+      language: "cpp",
+      submittedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+    },
+    {
+      id: 3,
+      problemTitle: "Binary Tree Inorder Traversal",
+      status: "time_limit_exceeded",
+      language: "python",
+      submittedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+    },
+  ],
+};
 
 function Home() {
   const { isAuthenticated } = useAuth();
-  const [stats, setStats] = useState({ solved: 0, submissions: 0, accuracy: '0%' });
+  const [stats, setStats] = useState({
+    solved: 0,
+    submissions: 0,
+    accuracy: "0%",
+  });
   const [recentSubmissions, setRecentSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,19 +52,26 @@ function Home() {
       }
 
       try {
-        // Fetch user stats (now includes recent submissions)
-        const statsData = await getStats();
-        
+        let statsData;
+
+        if (import.meta.env.VITE_USE_FAKE_HOME_STATS === "true") {
+          await new Promise((r) => setTimeout(r, 300));
+          statsData = FAKE_HOME_STATS;
+        } else {
+          statsData = await getStats();
+        }
+
         setStats({
           solved: statsData.solvedProblems || 0,
           submissions: statsData.totalSubmissions || 0,
-          accuracy: statsData.accuracy ? `${Math.round(statsData.accuracy)}%` : '0%',
+          accuracy: statsData.accuracy
+            ? `${Math.round(statsData.accuracy)}%`
+            : "0%",
         });
 
-        // Use recent submissions from stats response
         setRecentSubmissions(statsData.recentSubmissions || []);
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        console.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -39,64 +81,70 @@ function Home() {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen ">
+      <main className="max-w-7xl mx-auto px-4 py-10 space-y-10">
         {/* Coding Quote */}
-        <CodingQuote />
+        <section className="card card-body bg-base-200 border border-base-300">
+          <CodingQuote />
+        </section>
 
-        {/* Stats Grid */}
+        {/* Authenticated View */}
         {isAuthenticated() && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <StatsCard 
-                title="Problems Solved" 
-                value={loading ? '—' : stats.solved}
+            {/* Stats */}
+           <div className="group card card-body bg-base-200">
+              <section className="stats  bg-base-300/50 border border-base-300 transition-all duration-300 group-hover:border-white stats-vertical lg:stats-horizontal w-full">
+              <StatsCard
+                title="Problems Solved"
+                value={loading ? "—" : stats.solved}
                 icon="✓"
+                className="text-success"
               />
-              <StatsCard 
-                title="Total Submissions" 
-                value={loading ? '—' : stats.submissions}
+              <StatsCard
+                title="Total Submissions"
+                value={loading ? "—" : stats.submissions}
                 icon="📝"
+                className="text-secondary-content"
               />
-              <StatsCard 
-                title="Accuracy" 
-                value={loading ? '—' : stats.accuracy}
+              <StatsCard
+                title="Accuracy"
+                value={loading ? "—" : stats.accuracy}
                 icon="🎯"
+                className="text-info"
               />
-            </div>
+            </section>
+           </div>
 
             {/* Recent Submissions */}
-            <RecentSubmissions 
-              submissions={recentSubmissions} 
-              loading={loading}
-            />
+            <section className="">
+              <div className="card-body card bg-base-200 border border-base-300">
+                <RecentSubmissions
+                  submissions={recentSubmissions}
+                  loading={loading}
+                />
+              </div>
+            </section>
           </>
         )}
 
-        {/* Welcome message for non-authenticated users */}
+        {/* Guest View */}
         {!isAuthenticated() && (
-          <div className="mt-8 text-center">
-            <h2 className="text-3xl font-bold text-slate-50 font-sans mb-4">
-              Welcome to LocalCode
-            </h2>
-            <p className="text-xl text-slate-300 font-sans mb-8">
-              Practice coding problems in your self-hosted environment
-            </p>
-            <div className="flex justify-center gap-4">
-              <a 
-                href="/login" 
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-md transition-colors"
-              >
-                Sign In
-              </a>
-              <a 
-                href="/register" 
-                className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-100 font-medium rounded-md transition-colors"
-              >
-                Get Started
-              </a>
+          <section className="card card-body bg-base-200 border border-base-300">
+            <div className="card card-body bg-base-300/50 shadow-xl border border-base-300 items-center text-center gap-6">
+              <div className="flex flex-col items-center gap-4 justify-center-safe">
+                <h2 className="card-title text-2xl">Welcome to LocalCode</h2>
+
+                <p className="">
+                  Practice coding problems in your self-hosted environment
+                </p>
+              </div>
+              <div className="card-actions">
+                <Link to="/register">
+                  <button className="btn btn-primary">Get Started</button>
+                </Link>
+              </div>
             </div>
-          </div>
+          </section>
         )}
       </main>
     </div>

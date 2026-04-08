@@ -1,35 +1,40 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
-/**
- * SearchBar component for problem search
- * Provides a slate-styled search input with amber focus states
- */
-function SearchBar({ value, onChange, placeholder = 'Search problems...', className = '' }) {
+function SearchBar({
+  value,
+  onChange,
+  placeholder = "Search problems...",
+  className = "",
+}) {
   return (
-    <div className={`relative ${className}`}>
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    <div className={`form-control ${className}`}>
+      <label className="input input-bordered flex items-center gap-2 bg-base-200 rounded-xl border-base-300 focus-within:border-base-300 focus-within:outline-none focus-within:shadow-none transition-none">
         <svg
-          className="h-5 w-5 text-slate-400"
-          fill="none"
-          stroke="currentColor"
+          className="h-[1em] opacity-50"
+          xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
         >
-          <path
+          <g
+            strokeJoin="round"
             strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
+            strokeWidth="2.5"
+            fill="none"
+            stroke="currentColor"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </g>
         </svg>
-      </div>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-slate-800 border border-slate-700 rounded-md pl-10 pr-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
-        aria-label="Search problems"
-      />
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          /* CHANGE 1: Use type="text" instead of "search" */
+          type="text" 
+          autoComplete="off"
+          className="grow focus:outline-none"
+        />
+      </label>
     </div>
   );
 }

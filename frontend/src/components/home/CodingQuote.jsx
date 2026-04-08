@@ -4,30 +4,32 @@ import Card from '../common/Card';
 
 /**
  * CodingQuote component
- * Displays a random inspirational coding quote
+ * Displays a random inspirational coding quote using DaisyUI semantics
  */
 function CodingQuote() {
   const [quote, setQuote] = useState(null);
 
   useEffect(() => {
-    // Get a random quote on component mount
     setQuote(getRandomQuote());
   }, []);
 
-  if (!quote) {
-    return null;
-  }
+  if (!quote) return null;
 
   return (
-    <Card className="text-center">
-      <blockquote className="space-y-4">
-        <p className="text-xl md:text-2xl font-sans text-slate-100 italic">
+    <Card hover="true" className="text-center ">
+      <div className="flex flex-col items-center gap-4">
+        {/* The Quote Text */}
+        <p className="text-xl md:text-2xl italic leading-relaxed text-base-content font-serif">
           "{quote.text}"
         </p>
-        <footer className="text-amber-400 font-medium">
+        
+        {/* The Author - Using DaisyUI 'accent' color */}
+        <div className="divider divider-horizontal mx-auto w-24 h-1 bg-accent/30 rounded-full opacity-50"></div>
+        
+        <footer className="text-accent font-bold tracking-wide uppercase text-sm">
           — {quote.author}
         </footer>
-      </blockquote>
+      </div>
     </Card>
   );
 }

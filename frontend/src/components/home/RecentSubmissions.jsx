@@ -4,38 +4,31 @@ import Card from '../common/Card';
 import StatusBadge from '../common/StatusBadge';
 
 /**
- * RecentSubmissions component
- * Displays a list of recent submissions with status badges
+ * RecentSubmissions component converted to daisyUI
  */
 function RecentSubmissions({ submissions = [], loading = false }) {
+  // Loading State with daisyUI Spinner
   if (loading) {
     return (
-      <Card className="mt-8">
-        <h2 className="text-2xl font-bold text-slate-50 font-sans mb-6">
-          Recent Submissions
-        </h2>
-        <div className="text-center py-8 text-slate-400">
-          Loading submissions...
+      <Card className="">
+        <h2 className="card-title text-2xl mb-6">Recent Submissions</h2>
+        <div className="flex flex-col items-center justify-center py-12 gap-4">
+          <span className="loading loading-ring loading-lg text-primary"></span>
+          <span className="text-base-content/60">Loading submissions...</span>
         </div>
       </Card>
     );
   }
 
+  // Empty State
   if (!submissions || submissions.length === 0) {
     return (
-      <Card className="mt-8">
-        <h2 className="text-2xl font-bold text-slate-50 font-sans mb-6">
-          Recent Submissions
-        </h2>
-        <div className="text-center py-8 text-slate-400">
-          No submissions yet. Start solving problems to see your progress!
-        </div>
-        <div className="text-center mt-4">
-          <Link 
-            to="/problems" 
-            className="text-amber-400 hover:text-amber-300 font-medium transition-colors"
-          >
-            Browse Problems →
+      <Card className="">
+        <h2 className="card-title text-2xl mb-6">Recent Submissions</h2>
+        <div className="text-center py-8">
+          <p className="text-base-content mb-6">No submissions yet. Start solving problems to see your progress!</p>
+          <Link to="/problems" className="btn btn-primary ">
+            Browse Problems
           </Link>
         </div>
       </Card>
@@ -43,48 +36,56 @@ function RecentSubmissions({ submissions = [], loading = false }) {
   }
 
   return (
-    <Card className="mt-8">
-      <h2 className="text-2xl font-bold text-slate-50 font-sans mb-6">
+    <Card className="">
+      <h2 className="card-title text-2xl mb-6 ">
         Recent Submissions
       </h2>
-      <div className="space-y-3">
+      
+      <div className="flex flex-col gap-3">
         {submissions.map((submission) => (
           <Link
             key={submission.id}
             to={`/submissions/${submission.id}`}
-            className="block p-4 bg-slate-900 rounded-lg border border-slate-700 hover:border-amber-500 transition-colors"
+            className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-base-100 border border-base-300 hover:bg-secondary transition-all duration-200 shadow-sm"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex-1">
-                <h3 className="text-slate-100 font-medium font-sans mb-1">
-                  {submission.problemTitle || `Problem #${submission.problemId}`}
-                </h3>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
-                  <span className="font-mono">{submission.language}</span>
-                  <span>•</span>
-                  <span>{new Date(submission.submittedAt).toLocaleDateString()}</span>
-                  {submission.runtimeMs && (
-                    <>
-                      <span>•</span>
-                      <span>{submission.runtimeMs}ms</span>
-                    </>
-                  )}
-                </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-lg group-hover:text-black transition-colors">
+                {submission.problemTitle || `Problem #${submission.problemId}`}
+              </h3>
+              
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span className="badge  badge-sm badge-outline font-mono opacity-70">
+                  {submission.language}
+                </span>
+                <span className="text-xs opacity-50">•</span>
+                <span className="text-xs font-medium opacity-60">
+                  {new Date(submission.submittedAt).toLocaleDateString(undefined, { 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })}
+                </span>
+                
+                {submission.runtimeMs && (
+                  <>
+                    <span className="text-xs opacity-50">•</span>
+                    <span className="text-xs font-medium opacity-60">{submission.runtimeMs}ms</span>
+                  </>
+                )}
               </div>
-              <div className="flex items-center gap-3">
-                <StatusBadge status={submission.status} />
-              </div>
+            </div>
+
+            <div className="mt-3 sm:mt-0">
+              <StatusBadge status={submission.status} />
             </div>
           </Link>
         ))}
       </div>
+
       {submissions.length >= 5 && (
-        <div className="text-center mt-6">
-          <Link 
-            to="/submissions" 
-            className="text-amber-400 hover:text-amber-300 font-medium transition-colors"
-          >
-            View All Submissions →
+        <div className="card-actions justify-center mt-8">
+          <Link to="/submissions" className="btn btn-ghost btn-sm text-primary gap-2">
+            View All Submissions
+            <span>→</span>
           </Link>
         </div>
       )}
@@ -95,13 +96,13 @@ function RecentSubmissions({ submissions = [], loading = false }) {
 RecentSubmissions.propTypes = {
   submissions: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      problemId: PropTypes.number.isRequired,
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      problemId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       problemTitle: PropTypes.string,
       status: PropTypes.string.isRequired,
       language: PropTypes.string.isRequired,
       submittedAt: PropTypes.string.isRequired,
-      runtime: PropTypes.number,
+      runtimeMs: PropTypes.number,
     })
   ),
   loading: PropTypes.bool,

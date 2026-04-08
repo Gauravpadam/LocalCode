@@ -8,6 +8,8 @@ import CodeEditor from '../components/problem-detail/CodeEditor';
 import LanguageSelector from '../components/problem-detail/LanguageSelector';
 import TestCasePanel from '../components/problem-detail/TestCasePanel';
 import SolutionsTab from '../components/problem-detail/SolutionsTab';
+import { dummyProblem } from '../mockDataForTestingUIs/dummyProblem';
+import { dummyTestCases } from '../mockDataForTestingUIs/dummyTestCases';
 
 function ProblemDetail() {
   const { id } = useParams();
@@ -33,6 +35,7 @@ function ProblemDetail() {
 
   // Fetch problem details and test cases on mount
   useEffect(() => {
+    console.log('USE_FAKE_PROBLEM_Details:', import.meta.env.VITE_USE_FAKE_PROBLEMS);
     fetchProblemDetails();
     fetchTestCases();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,6 +114,13 @@ function ProblemDetail() {
     try {
       setLoading(true);
       setError(null);
+      if(import.meta.env.VITE_USE_FAKE_PROBLEMS === 'true') {
+        // simulate delay
+        await new Promise((r) => setTimeout(r, 300));
+        setProblem(dummyProblem);
+        loadStarterCodeFromProblem(dummyProblem);
+        return;
+      }
       const response = await api.get(API_ENDPOINTS.PROBLEM_DETAIL(id));
       setProblem(response.data);
       loadStarterCodeFromProblem(response.data);
@@ -125,6 +135,12 @@ function ProblemDetail() {
   // Fetch test cases from API
   const fetchTestCases = async () => {
     try {
+      if(import.meta.env.VITE_USE_FAKE_PROBLEM === 'true') {
+        // simulate delay
+        await new Promise((r) => setTimeout(r, 300));
+        setTestCases(dummyTestCases);
+        return;
+      }
       const response = await api.get(API_ENDPOINTS.PROBLEM_TESTCASES(id));
       setTestCases(response.data);
     } catch (err) {

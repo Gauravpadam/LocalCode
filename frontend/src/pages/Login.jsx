@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Button from '../components/common/Button';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -14,13 +15,8 @@ function Login() {
     e.preventDefault();
     setError('');
     
-    // Validation
-    if (!username.trim()) {
-      setError('Username is required');
-      return;
-    }
-    if (!password) {
-      setError('Password is required');
+    if (!username.trim() || !password) {
+      setError('Please fill in all fields');
       return;
     }
 
@@ -36,59 +32,69 @@ function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-auto px-4 py-12">
-      <div className="card">
-        <h2 className="text-2xl font-bold text-slate-300 text-center mb-6">Login to LocalCode</h2>
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      {/* Simple, Solid Flat Card */}
+      <div className="w-full max-w-md p-8 rounded-2xl bg-base-200 border border-base-300 shadow-sm">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-base-content">Login</h2>
+          <p className="text-sm text-base-content/60 mt-1">Enter your credentials to continue</p>
+        </div>
         
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-            {error}
+          <div className="alert alert-error flex justify-start gap-2 py-3 mb-6 text-sm rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>{error}</span>
           </div>
         )}
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-1">
-              Username
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="form-control w-full">
+            <label className="label py-1">
+              <span className="label-text text-xs font-bold uppercase opacity-50">Username</span>
             </label>
             <input
               type="text"
-              id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="input-field"
-              placeholder="Enter your username"
+              className="input input-bordered w-full bg-base-100 rounded-lg focus:outline-primary"
+              placeholder="e.g. janesmith"
               disabled={loading}
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
-              Password
+
+          <div className="form-control w-full">
+            <label className="label py-1 flex justify-between">
+              <span className="label-text text-xs font-bold uppercase opacity-50">Password</span>
+              <Link to="/forgot" className="label-text-alt link link-hover opacity-50">Forgot?</Link>
             </label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field"
-              placeholder="Enter your password"
+              className="input input-bordered w-full bg-base-100 rounded-lg focus:outline-primary"
+              placeholder="••••••••"
               disabled={loading}
             />
           </div>
-          <button 
+
+          <Button 
             type="submit" 
-            className="btn-primary w-full"
+            variant="primary"
+            className="w-full h-12 rounded-lg mt-2 font-bold"
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+            {loading ? <span className="loading loading-spinner loading-sm"></span> : 'Sign In'}
+          </Button>
         </form>
-        <p className="text-center text-sm text-slate-100 mt-4">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
-            Sign up
-          </Link>
-        </p>
+
+        <div className="mt-8 pt-6 border-t border-base-300 text-center">
+          <p className="text-sm opacity-70">
+            New here?{' '}
+            <Link to="/register" className="text-primary font-bold hover:underline">
+              Create an account
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
